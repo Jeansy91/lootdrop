@@ -1,0 +1,113 @@
+{% extends "admin/base.html" %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-white">{{ t('admin_subscribers_title') }}</h1>
+  <span class="text-gray-400 text-sm">{{ subscribers|length }} {{ t('total') }}</span>
+</div>
+
+{% if message %}
+<div class="mb-5 px-4 py-3 rounded-lg bg-emerald-900/50 border border-emerald-600
+            text-emerald-300 text-sm">
+  {{ message }}
+</div>
+{% endif %}
+
+<!-- Add form -->
+<div class="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-6">
+  <p class="text-sm font-semibold text-gray-300 mb-3">{{ t('add_subscriber') }}</p>
+  <form method="post" action="/admin/subscribers/add">
+    <div class="flex flex-wrap gap-3 items-start">
+      <div class="flex-1 min-w-48">
+        <input type="email" name="email" placeholder="email@example.com" required
+               class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5
+                      text-white text-sm placeholder-gray-500 focus:border-emerald-500 focus:outline-none">
+      </div>
+      <select name="language"
+              class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5
+                     text-white text-sm focus:border-emerald-500 focus:outline-none">
+        <option value="de">DE</option>
+        <option value="en">EN</option>
+      </select>
+      <button type="submit"
+              class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5
+                     rounded-lg text-sm transition-colors">
+        + {{ t('add_subscriber') }}
+      </button>
+    </div>
+    <!-- Platform checkboxes -->
+    <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+      {% for group in platform_groups %}
+      <label class="flex items-center gap-1.5 cursor-pointer text-xs text-gray-400">
+        <input type="checkbox" name="platforms" value="{{ group }}" checked
+               class="rounded border-gray-500 bg-gray-600 text-emerald-500">
+        {{ group }}
+      </label>
+      {% endfor %}
+    </div>
+    <p class="text-xs text-gray-500 mt-1">{{ t('subscribe_platforms_hint') }}</p>
+  </form>
+</div>
+
+<!-- Table -->
+<div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-gray-700 text-gray-400 text-left">
+        <th class="px-4 py-3">{{ t('admin_sub_email') }}</th>
+        <th class="px-4 py-3">{{ t('admin_sub_lang') }}</th>
+        <th class="px-4 py-3">{{ t('subscribe_platforms_label') }}</th>
+        <th class="px-4 py-3">{{ t('admin_sub_joined') }}</th>
+        <th class="px-4 py-3">{{ t('admin_sub_status') }}</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-700">
+      {% for sub in subscribers %}
+      <tr class="hover:bg-gray-700/40">
+        <td class="px-4 py-3 text-white">{{ sub.email }}</td>
+        <td class="px-4 py-3 text-gray-400 uppercase">{{ sub.language }}</td>
+        <td class="px-4 py-3">
+          {% if sub.subscriber_platforms %}
+            <div class="flex flex-wrap gap-1">
+              {% for p in sub.subscriber_platforms.split(',') %}
+              <span class="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-300">{{ p.strip() }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <span class="text-xs text-gray-500">{{ t('filter_all') }}</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-gray-400">
+          {{ sub.created_at.strftime('%d.%m.%Y') }}
+        </td>
+        <td class="px-4 py-3">
+          <span class="text-xs px-2 py-0.5 rounded-full
+                       {% if sub.is_active %}bg-emerald-900/60 text-emerald-400
+                       {% else %}bg-gray-700 text-gray-500{% endif %}">
+            {% if sub.is_active %}{{ t('admin_sub_active') }}
+            {% else %}{{ t('admin_sub_inactive') }}{% endif %}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-right">
+          <form method="post" action="/admin/subscribers/{{ sub.id }}/delete"
+                onsubmit="return confirm('{{ sub.email }} wirklich löschen?')">
+            <button type="submit"
+                    class="text-red-400 hover:text-red-300 text-xs transition-colors">
+              {{ t('admin_sub_delete') }}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" class="px-4 py-10 text-center text-gray-500">
+          Keine Subscriber vorhanden.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

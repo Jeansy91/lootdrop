@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lootdrop – Neue kostenlose Spiele</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background-color: #0f172a;
+      color: #f1f5f9;
+      margin: 0;
+      padding: 0;
+    }
+    .wrapper { max-width: 600px; margin: 0 auto; padding: 32px 16px; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 32px; }
+    .logo { font-size: 24px; font-weight: 800; color: #10b981; letter-spacing: -0.5px; margin: 0 0 6px; }
+    .header-sub { color: #94a3b8; font-size: 14px; margin: 0; }
+
+    /* Card */
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .card-img-wrap { position: relative; }
+    .card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+    .badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #10b981;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .worth-pill {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(15,23,42,0.8);
+      color: #94a3b8;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .card-body { padding: 16px 18px 18px; }
+    .card-title { font-size: 16px; font-weight: 700; color: #f1f5f9; margin: 0 0 8px; }
+
+    /* Platform badges */
+    .platforms { margin: 0 0 10px; }
+    .platform-tag {
+      display: inline-block;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: #94a3b8;
+      margin: 0 4px 4px 0;
+    }
+    .card-meta { font-size: 12px; color: #64748b; margin: 0 0 14px; }
+
+    /* Button */
+    .btn {
+      display: inline-block;
+      background: #059669;
+      color: #ffffff !important;
+      text-decoration: none !important;
+      padding: 11px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn:hover { background: #10b981; }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid #1e293b; margin: 8px 0 24px; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.7;
+    }
+    .footer a { color: #10b981 !important; text-decoration: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <p class="logo">Lootdrop</p>
+      <p class="header-sub">
+        {% if giveaways|length == 1 %}
+          1 neues kostenloses Spiel heute!
+        {% else %}
+          {{ giveaways|length }} neue kostenlose Spiele heute!
+        {% endif %}
+      </p>
+    </div>
+
+    {% for game in giveaways %}
+    <div class="card">
+      {% if game.thumbnail %}
+      <div class="card-img-wrap">
+        <img src="{{ game.thumbnail }}" alt="{{ game.title }}">
+        <span class="badge">KOSTENLOS</span>
+        {% if game.worth and game.worth not in ('N/A', '$0.00', '') %}
+        <span class="worth-pill">{{ game.worth }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+      <div class="card-body">
+        <p class="card-title">{{ game.title }}</p>
+        {% if game.platforms %}
+        <div class="platforms">
+          {% for p in game.platforms.split(', ') %}
+          <span class="platform-tag">{{ p }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if game.end_date and game.end_date != 'N/A' %}
+        <p class="card-meta">Verfügbar bis: {{ game.end_date }}</p>
+        {% endif %}
+        {% if game.open_giveaway_url %}
+        <a href="{{ game.open_giveaway_url }}" class="btn">Jetzt kostenlos holen →</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="footer">
+      <p>
+        Du erhältst diese E-Mail, weil du dich bei
+        <a href="{{ base_url }}">Lootdrop</a> für Benachrichtigungen angemeldet hast.
+      </p>
+      <p>
+        <a href="{{ unsubscribe_url }}">Abmelden</a>
+        &nbsp;&middot;&nbsp;
+        Daten von <a href="https://www.gamerpower.com">GamerPower</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Free Games</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+
+  <nav class="bg-gray-800 border-b border-gray-700">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4 text-sm">
+      <span class="text-emerald-400 font-bold">🎮 Admin</span>
+      <div class="flex items-center gap-5">
+        <a href="/admin/dashboard" class="text-gray-300 hover:text-white">Dashboard</a>
+        <a href="/admin/subscribers" class="text-gray-300 hover:text-white">
+          {{ t('admin_subscribers_title') }}
+        </a>
+        <a href="/" class="text-gray-300 hover:text-white">← Website</a>
+        <a href="/admin/logout" class="text-red-400 hover:text-red-300">
+          {{ t('admin_logout') }}
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

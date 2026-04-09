@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <clipPath id="drop">
+      <!-- Durchgehende Bézierkurven: Spitze oben, gleichmäßiger Übergang, runde Basis -->
+      <path d="M16,2 C9,4 3,13 3,20 C3,27 29,27 29,20 C29,13 23,4 16,2Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Basisfüllung -->
+  <path d="M16,2 C9,4 3,13 3,20 C3,27 29,27 29,20 C29,13 23,4 16,2Z" fill="#064e3b"/>
+
+  <!-- Obere linke Sternfacette — konkave Außenkante -->
+  <path d="M16,2 Q11,7 5,13 L16,9Z" fill="#a7f3d0" clip-path="url(#drop)"/>
+
+  <!-- Obere rechte Sternfacette -->
+  <path d="M16,2 Q21,7 27,13 L16,9Z" fill="#6ee7b7" clip-path="url(#drop)"/>
+
+  <!-- Linke Kronenfacette -->
+  <path d="M5,13 Q3,17 3,20 L10,17 L16,9Z" fill="#34d399" clip-path="url(#drop)"/>
+
+  <!-- Rechte Kronenfacette -->
+  <path d="M27,13 Q29,17 29,20 L22,17 L16,9Z" fill="#059669" clip-path="url(#drop)"/>
+
+  <!-- Table -->
+  <polygon points="16,9 10,17 16,23 22,17" fill="#10b981" clip-path="url(#drop)"/>
+
+  <!-- Linkes unteres Pavillon -->
+  <path d="M3,20 Q4,24 7,26 L12,23 L10,17Z" fill="#047857" clip-path="url(#drop)"/>
+
+  <!-- Rechtes unteres Pavillon -->
+  <path d="M29,20 Q28,24 25,26 L20,23 L22,17Z" fill="#065f46" clip-path="url(#drop)"/>
+
+  <!-- Culet links -->
+  <path d="M7,26 Q11,28 16,29 L16,23 L12,23Z" fill="#059669" clip-path="url(#drop)"/>
+
+  <!-- Culet rechts -->
+  <path d="M25,26 Q21,28 16,29 L16,23 L20,23Z" fill="#047857" clip-path="url(#drop)"/>
+
+  <!-- Schlifflinien -->
+  <g clip-path="url(#drop)" stroke="#022c22" stroke-width="0.45" fill="none" opacity="0.5">
+    <!-- Obere Kanten: konkav wie die Facetten -->
+    <path d="M16,2 Q11,7 5,13"/>
+    <path d="M16,2 Q21,7 27,13"/>
+    <line x1="16" y1="2"  x2="16" y2="9"/>
+    <line x1="16" y1="9"  x2="5"  y2="13"/>
+    <line x1="16" y1="9"  x2="27" y2="13"/>
+    <line x1="16" y1="9"  x2="10" y2="17"/>
+    <line x1="16" y1="9"  x2="22" y2="17"/>
+    <line x1="16" y1="9"  x2="16" y2="23"/>
+    <!-- Seiten -->
+    <path d="M5,13 Q3,17 3,20"/>
+    <path d="M27,13 Q29,17 29,20"/>
+    <line x1="5"  y1="13" x2="10" y2="17"/>
+    <line x1="27" y1="13" x2="22" y2="17"/>
+    <line x1="10" y1="17" x2="3"  y2="20"/>
+    <line x1="22" y1="17" x2="29" y2="20"/>
+    <!-- Untere Kanten -->
+    <path d="M3,20 Q4,24 7,26"/>
+    <path d="M29,20 Q28,24 25,26"/>
+    <line x1="10" y1="17" x2="12" y2="23"/>
+    <line x1="22" y1="17" x2="20" y2="23"/>
+    <line x1="12" y1="23" x2="16" y2="23"/>
+    <line x1="20" y1="23" x2="16" y2="23"/>
+    <line x1="16" y1="23" x2="16" y2="29"/>
+    <line x1="12" y1="23" x2="7"  y2="26"/>
+    <line x1="20" y1="23" x2="25" y2="26"/>
+    <path d="M7,26 Q11,28 16,29"/>
+    <path d="M25,26 Q21,28 16,29"/>
+  </g>
+
+  <!-- Umrisslinie -->
+  <path d="M16,2 C9,4 3,13 3,20 C3,27 29,27 29,20 C29,13 23,4 16,2Z"
+        fill="none" stroke="#34d399" stroke-width="0.5" opacity="0.25"/>
+</svg>

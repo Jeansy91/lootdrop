@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Filter -->
+<div class="flex flex-wrap gap-3 mb-6 sticky top-[53px] z-40 bg-gray-900 mt-0 pt-3 pb-3 -mx-4 px-4 border-b border-gray-800">
+
+  <div class="relative" id="dd-system">
+    <button onclick="toggleDropdown('system')"
+            class="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg
+                   px-3 py-1.5 text-sm text-white hover:border-emerald-500 transition-colors">
+      <span id="dd-system-label">Spieleplattform: {{ t('filter_all') }}</span>
+      <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div id="dd-system-panel"
+         class="hidden absolute left-0 top-full mt-1 z-50 bg-gray-800 border border-gray-600
+                rounded-xl shadow-xl p-2 min-w-48">
+      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
+        <input type="checkbox" value="__all__" checked onchange="onFilterChange('system', this)"
+               class="system-cb rounded border-gray-500 bg-gray-700 text-emerald-500
+                      focus:ring-emerald-500 focus:ring-offset-gray-800">
+        <span class="text-sm text-gray-200">{{ t('filter_all') }}</span>
+      </label>
+      <div class="border-t border-gray-700 my-1"></div>
+      {% for group in system_groups %}
+      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
+        <input type="checkbox" value="{{ group }}" onchange="onFilterChange('system', this)"
+               class="system-cb rounded border-gray-500 bg-gray-700 text-emerald-500
+                      focus:ring-emerald-500 focus:ring-offset-gray-800">
+        <span class="text-sm text-gray-300">{{ group }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="relative" id="dd-store">
+    <button onclick="toggleDropdown('store')"
+            class="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg
+                   px-3 py-1.5 text-sm text-white hover:border-emerald-500 transition-colors">
+      <span id="dd-store-label">Store: {{ t('filter_all') }}</span>
+      <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div id="dd-store-panel"
+         class="hidden absolute left-0 top-full mt-1 z-50 bg-gray-800 border border-gray-600
+                rounded-xl shadow-xl p-2 min-w-48">
+      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
+        <input type="checkbox" value="__all__" checked onchange="onFilterChange('store', this)"
+               class="store-cb rounded border-gray-500 bg-gray-700 text-emerald-500
+                      focus:ring-emerald-500 focus:ring-offset-gray-800">
+        <span class="text-sm text-gray-200">{{ t('filter_all') }}</span>
+      </label>
+      <div class="border-t border-gray-700 my-1"></div>
+      {% for group in store_groups %}
+      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
+        <input type="checkbox" value="{{ group }}" onchange="onFilterChange('store', this)"
+               class="store-cb rounded border-gray-500 bg-gray-700 text-emerald-500
+                      focus:ring-emerald-500 focus:ring-offset-gray-800">
+        <span class="text-sm text-gray-300">{{ group }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+{% if giveaways %}
+
+<p id="no-results" class="hidden text-center py-16 text-gray-500">{{ t('no_giveaways') }}</p>
+
+{% set colors = {
+  "Steam":             "bg-blue-900/60 text-blue-300 border-blue-700",
+  "Epic Games Store":  "bg-slate-700/60 text-slate-200 border-slate-500",
+  "GOG":               "bg-purple-900/60 text-purple-300 border-purple-700",
+  "Ubisoft Connect":   "bg-sky-900/60 text-sky-300 border-sky-700",
+  "PC":                "bg-zinc-700/60 text-zinc-300 border-zinc-500",
+  "itch.io":           "bg-red-900/60 text-red-300 border-red-700",
+  "IndieGala":         "bg-orange-900/60 text-orange-300 border-orange-700",
+  "PS5":               "bg-blue-800/60 text-blue-200 border-blue-600",
+  "PS4":               "bg-blue-800/60 text-blue-200 border-blue-600",
+  "Xbox Series X/S":   "bg-green-900/60 text-green-300 border-green-700",
+  "Xbox One":          "bg-green-900/60 text-green-300 border-green-700",
+  "Nintendo Switch":   "bg-red-800/60 text-red-200 border-red-600",
+  "Android":           "bg-lime-900/60 text-lime-300 border-lime-700",
+  "iOS":               "bg-gray-600/60 text-gray-200 border-gray-500",
+  "VR":                "bg-violet-900/60 text-violet-300 border-violet-700",
+} %}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="game-grid">
+  {% for game in giveaways %}
+  {% set game_platforms = game.platforms.split(', ') if game.platforms else [] %}
+  <div class="game-card bg-gray-800 rounded-xl overflow-hidden border border-gray-700
+              hover:border-emerald-500 transition-colors flex flex-col cursor-pointer"
+       data-platforms="{{ game.platforms }}"
+       data-id="{{ game.id }}"
+       onclick="openModal(this)">
+
+    {% if game.thumbnail %}
+    <div class="relative">
+      <img src="{{ game.thumbnail }}" alt="{{ game.title }}"
+           class="w-full aspect-[16/9] object-cover">
+      <span class="free-badge absolute top-2 left-2 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded">
+        {{ t('card_free') }}
+      </span>
+      {% if game.worth and game.worth not in ('N/A', '$0.00', '') %}
+      <span class="absolute top-2 right-2 bg-gray-900/80 text-gray-300 text-xs px-2 py-1 rounded">
+        {{ game.worth }}
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="p-4 flex flex-col flex-1">
+      <h2 class="text-white font-semibold text-base leading-tight mb-2">{{ game.title }}</h2>
+
+      {% if game_platforms %}
+      <div class="flex flex-wrap gap-1 mb-3">
+        {% for p in game_platforms %}
+        {% set cls = colors.get(p, "bg-gray-700/60 text-gray-300 border-gray-600") %}
+        <span class="text-xs px-2 py-0.5 rounded border {{ cls }}">{{ p }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <p class="text-xs text-gray-500 mb-4">
+        {% if game.end_date and game.end_date != 'N/A' %}
+          {{ t('card_until') }}: {{ game.end_date }}
+        {% else %}
+          {{ t('card_unlimited') }}
+        {% endif %}
+      </p>
+
+      <div class="mt-auto flex flex-col gap-2">
+        {% if game.open_giveaway_url %}
+        <a href="{{ game.open_giveaway_url }}"
+           target="_blank" rel="noopener noreferrer"
+           onclick="event.stopPropagation(); markClaimed({{ game.id }})"
+           class="block text-center bg-emerald-600 hover:bg-emerald-500
+                  text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          {{ t('card_claim') }} →
+        </a>
+        {% endif %}
+        <button onclick="event.stopPropagation(); toggleClaim({{ game.id }})"
+                class="claim-toggle-btn w-full text-center text-xs px-4 py-1.5 rounded-lg border
+                       border-gray-600 text-gray-400 hover:border-emerald-500 hover:text-emerald-400
+                       transition-colors">
+          {{ t('card_mark_claimed') }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-24 text-gray-500">
+  <div class="text-6xl mb-4">🎮</div>
+  <p class="text-lg">{{ t('no_giveaways') }}</p>
+</div>
+{% endif %}
+
+<div id="all-game-data" class="hidden">
+  {% for game in giveaways %}
+  <div data-id="{{ game.id }}">
+    <div class="gd-title">{{ game.title }}</div>
+    <div class="gd-image">{{ game.image or game.thumbnail or '' }}</div>
+    <div class="gd-worth">{{ game.worth or '' }}</div>
+    <div class="gd-platforms">{{ game.platforms or '' }}</div>
+    <div class="gd-end-date">{% if game.end_date and game.end_date != 'N/A' %}{{ t('card_until') }}: {{ game.end_date }}{% else %}{{ t('card_unlimited') }}{% endif %}</div>
+    <div class="gd-url">{{ game.open_giveaway_url or '' }}</div>
+    <div class="gd-description">{{ game.description or '' }}</div>
+    <div class="gd-instructions">{{ game.instructions or '' }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Modal -->
+<div id="game-modal"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal(event)">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+  <div class="relative bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl
+              w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+
+    <div id="modal-image-wrap" class="relative flex-shrink-0">
+      <img id="modal-image" src="" alt="" class="w-full aspect-[16/7] object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 to-transparent"></div>
+      <button data-close-modal
+              class="absolute top-3 right-3 bg-gray-900/70 hover:bg-gray-900 text-white
+                     rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="absolute bottom-3 left-3 flex gap-2 items-center flex-wrap">
+        <span id="modal-free-badge" class="text-white text-xs font-bold px-2 py-1 rounded bg-emerald-500"></span>
+        <span id="modal-worth" class="bg-gray-900/80 text-gray-300 text-xs px-2 py-1 rounded hidden"></span>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+      <h2 id="modal-title" class="text-white text-xl font-bold leading-tight"></h2>
+      <div id="modal-platforms" class="flex flex-wrap gap-1.5"></div>
+      <p id="modal-end-date" class="text-xs text-gray-400"></p>
+
+      <div id="modal-description-wrap" class="hidden">
+        <h3 class="text-sm font-semibold text-gray-300 mb-1">{{ t('modal_description') }}</h3>
+        <p id="modal-description" class="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap"></p>
+      </div>
+
+      <div id="modal-instructions-wrap" class="hidden">
+        <h3 class="text-sm font-semibold text-gray-300 mb-1">{{ t('modal_instructions') }}</h3>
+        <p id="modal-instructions" class="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap"></p>
+      </div>
+
+      <div class="flex flex-col gap-2 pt-2">
+        <a id="modal-claim-link" href="#" target="_blank" rel="noopener noreferrer"
+           onclick="markClaimed(currentModalId)"
+           class="block text-center bg-emerald-600 hover:bg-emerald-500
+                  text-white font-medium px-4 py-2.5 rounded-lg transition-colors hidden">
+          {{ t('card_claim') }} →
+        </a>
+        <button id="modal-claim-btn"
+                onclick="toggleClaim(currentModalId)"
+                class="w-full text-center text-sm px-4 py-2 rounded-lg border transition-colors
+                       border-gray-600 text-gray-400 hover:border-emerald-500 hover:text-emerald-400">
+          {{ t('card_mark_claimed') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const systemGroups = {{ system_groups_json | default('{}') | safe }};
+  const storeGroups  = {{ store_groups_json  | default('{}') | safe }};
+
+  const TEXT_FREE    = "{{ t('card_free') }}";
+  const TEXT_CLAIMED = "{{ t('card_claimed') }}";
+  const TEXT_MARK    = "{{ t('card_mark_claimed') }}";
+  const TEXT_UNMARK  = "{{ t('card_unmark_claimed') }}";
+  const TEXT_ALL     = "{{ t('filter_all') }}";
+
+  const CLAIMED_KEY  = 'free_games_claimed';
+  const FILTER_KEY   = 'free_games_filters';
+
+  const platformColorMap = {
+    "Steam":            "bg-blue-900/60 text-blue-300 border-blue-700",
+    "Epic Games Store": "bg-slate-700/60 text-slate-200 border-slate-500",
+    "GOG":              "bg-purple-900/60 text-purple-300 border-purple-700",
+    "Ubisoft Connect":  "bg-sky-900/60 text-sky-300 border-sky-700",
+    "PC":               "bg-zinc-700/60 text-zinc-300 border-zinc-500",
+    "itch.io":          "bg-red-900/60 text-red-300 border-red-700",
+    "IndieGala":        "bg-orange-900/60 text-orange-300 border-orange-700",
+    "PS5":              "bg-blue-800/60 text-blue-200 border-blue-600",
+    "PS4":              "bg-blue-800/60 text-blue-200 border-blue-600",
+    "Xbox Series X/S":  "bg-green-900/60 text-green-300 border-green-700",
+    "Xbox One":         "bg-green-900/60 text-green-300 border-green-700",
+    "Nintendo Switch":  "bg-red-800/60 text-red-200 border-red-600",
+    "Android":          "bg-lime-900/60 text-lime-300 border-lime-700",
+    "iOS":              "bg-gray-600/60 text-gray-200 border-gray-500",
+    "VR":               "bg-violet-900/60 text-violet-300 border-violet-700",
+  };
+
+  // claimed IDs cached in memory; localStorage is source of truth on load
+  let claimedIds = (function() {
+    try { return new Set(JSON.parse(localStorage.getItem(CLAIMED_KEY) || '[]')); }
+    catch { return new Set(); }
+  })();
+
+  function saveClaimedIds() {
+    localStorage.setItem(CLAIMED_KEY, JSON.stringify([...claimedIds]));
+  }
+
+  function markClaimed(gameId) {
+    if (!gameId) return;
+    claimedIds.add(String(gameId));
+    saveClaimedIds();
+    applyClaimedState();
+    if (currentModalId == gameId) updateModalClaimedState();
+  }
+
+  function toggleClaim(gameId) {
+    if (!gameId) return;
+    const id = String(gameId);
+    claimedIds.has(id) ? claimedIds.delete(id) : claimedIds.add(id);
+    saveClaimedIds();
+    applyClaimedState();
+    if (currentModalId == gameId) updateModalClaimedState();
+  }
+
+  function applyClaimedState() {
+    document.querySelectorAll('.game-card').forEach(card => {
+      const cl = claimedIds.has(String(card.dataset.id));
+      card.classList.toggle('opacity-60', cl);
+      card.classList.toggle('border-gray-600', cl);
+      card.classList.toggle('border-gray-700', !cl);
+      card.classList.toggle('hover:border-emerald-500', !cl);
+
+      const badge = card.querySelector('.free-badge');
+      if (badge) {
+        badge.textContent = cl ? TEXT_CLAIMED : TEXT_FREE;
+        badge.classList.toggle('bg-emerald-500', !cl);
+        badge.classList.toggle('bg-gray-500', cl);
+      }
+
+      const btn = card.querySelector('.claim-toggle-btn');
+      if (btn) {
+        btn.textContent = cl ? TEXT_UNMARK : TEXT_MARK;
+        btn.classList.toggle('border-gray-500', cl);
+        btn.classList.toggle('hover:border-red-500', cl);
+        btn.classList.toggle('hover:text-red-400', cl);
+        btn.classList.toggle('border-gray-600', !cl);
+        btn.classList.toggle('hover:border-emerald-500', !cl);
+        btn.classList.toggle('hover:text-emerald-400', !cl);
+      }
+    });
+  }
+
+  // filters
+
+  const _savedFilters = (function() {
+    try {
+      const s = JSON.parse(localStorage.getItem(FILTER_KEY) || '{}');
+      return { systems: new Set(s.systems || []), stores: new Set(s.stores || []) };
+    } catch { return { systems: new Set(), stores: new Set() }; }
+  })();
+
+  let activeSystems = _savedFilters.systems;
+  let activeStores  = _savedFilters.stores;
+
+  function saveFilters() {
+    localStorage.setItem(FILTER_KEY, JSON.stringify({
+      systems: [...activeSystems],
+      stores:  [...activeStores],
+    }));
+  }
+
+  function onFilterChange(name, cb) {
+    const activeSet = name === 'system' ? activeSystems : activeStores;
+    const allCb = document.querySelector(`.${name}-cb[value="__all__"]`);
+    const itemCbs = [...document.querySelectorAll(`.${name}-cb:not([value="__all__"])`)];
+
+    if (cb.value === '__all__') {
+      activeSet.clear();
+      itemCbs.forEach(c => c.checked = false);
+      allCb.checked = true;
+    } else {
+      cb.checked ? activeSet.add(cb.value) : activeSet.delete(cb.value);
+      allCb.checked = activeSet.size === 0;
+      itemCbs.forEach(c => { if (c.value === cb.value) c.checked = activeSet.has(c.value); });
+    }
+
+    const prefix = name === 'system' ? 'Spieleplattform' : 'Store';
+    updateLabel(name, activeSet, prefix);
+    saveFilters();
+    applyFilters();
+  }
+
+  function toggleDropdown(name) {
+    const panel = document.getElementById(`dd-${name}-panel`);
+    const isOpen = !panel.classList.contains('hidden');
+    closeAllDropdowns();
+    if (!isOpen) panel.classList.remove('hidden');
+  }
+
+  function closeAllDropdowns() {
+    document.querySelectorAll('#dd-system-panel, #dd-store-panel').forEach(p => p.classList.add('hidden'));
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('[id^="dd-"]')) closeAllDropdowns();
+  });
+
+  function updateLabel(name, activeSet, prefix) {
+    const label = document.getElementById(`dd-${name}-label`);
+    if (activeSet.size === 0)      label.textContent = `${prefix}: ${TEXT_ALL}`;
+    else if (activeSet.size === 1) label.textContent = `${prefix}: ${[...activeSet][0]}`;
+    else                           label.textContent = `${prefix}: ${activeSet.size} ${TEXT_ALL === 'Alle' ? 'ausgewählt' : 'selected'}`;
+  }
+
+  function applyFilters() {
+    const cards = document.querySelectorAll('.game-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const platforms = card.dataset.platforms
+        ? card.dataset.platforms.split(', ').map(p => p.trim())
+        : [];
+      const systemOk = activeSystems.size === 0
+        || [...activeSystems].some(g => (systemGroups[g] || []).some(p => platforms.includes(p)));
+      const storeOk = activeStores.size === 0
+        || [...activeStores].some(g => (storeGroups[g] || []).some(p => platforms.includes(p)));
+      const show = systemOk && storeOk;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    const noResults = document.getElementById('no-results');
+    if (noResults) noResults.classList.toggle('hidden', visible > 0);
+  }
+
+  // modal
+
+  let currentModalId = null;
+
+  function getGameData(id) {
+    const c = document.querySelector(`#all-game-data [data-id="${id}"]`);
+    if (!c) return null;
+    const text = sel => c.querySelector(sel)?.textContent.trim() || '';
+    return {
+      title:        text('.gd-title'),
+      image:        text('.gd-image'),
+      worth:        text('.gd-worth'),
+      platforms:    text('.gd-platforms'),
+      endDate:      text('.gd-end-date'),
+      url:          text('.gd-url'),
+      description:  text('.gd-description'),
+      instructions: text('.gd-instructions'),
+    };
+  }
+
+  function updateModalClaimedState() {
+    const claimed = claimedIds.has(String(currentModalId));
+    const badge = document.getElementById('modal-free-badge');
+    badge.textContent = claimed ? TEXT_CLAIMED : TEXT_FREE;
+    badge.classList.toggle('bg-emerald-500', !claimed);
+    badge.classList.toggle('bg-gray-500', claimed);
+
+    const btn = document.getElementById('modal-claim-btn');
+    btn.textContent = claimed ? TEXT_UNMARK : TEXT_MARK;
+    btn.className = `w-full text-center text-sm px-4 py-2 rounded-lg border transition-colors ${
+      claimed
+        ? 'border-gray-500 text-gray-400 hover:border-red-500 hover:text-red-400'
+        : 'border-gray-600 text-gray-400 hover:border-emerald-500 hover:text-emerald-400'
+    }`;
+  }
+
+  function openModal(card) {
+    const id = card.dataset.id;
+    const g = getGameData(id);
+    if (!g) return;
+    currentModalId = id;
+
+    const imgWrap = document.getElementById('modal-image-wrap');
+    const img = document.getElementById('modal-image');
+    if (g.image) { img.src = g.image; img.alt = g.title; imgWrap.classList.remove('hidden'); }
+    else          { imgWrap.classList.add('hidden'); }
+
+    const worthEl = document.getElementById('modal-worth');
+    if (g.worth && !['N/A', '$0.00', ''].includes(g.worth)) {
+      worthEl.textContent = g.worth; worthEl.classList.remove('hidden');
+    } else { worthEl.classList.add('hidden'); }
+
+    document.getElementById('modal-title').textContent = g.title;
+
+    const platEl = document.getElementById('modal-platforms');
+    platEl.innerHTML = '';
+    g.platforms.split(', ').filter(Boolean).forEach(p => {
+      const span = document.createElement('span');
+      span.className = `text-xs px-2 py-0.5 rounded border ${platformColorMap[p.trim()] || 'bg-gray-700/60 text-gray-300 border-gray-600'}`;
+      span.textContent = p.trim();
+      platEl.appendChild(span);
+    });
+
+    document.getElementById('modal-end-date').textContent = g.endDate;
+    document.getElementById('modal-description').textContent = g.description;
+    document.getElementById('modal-description-wrap').classList.toggle('hidden', !g.description);
+    document.getElementById('modal-instructions').textContent = g.instructions;
+    document.getElementById('modal-instructions-wrap').classList.toggle('hidden', !g.instructions);
+
+    const claimLink = document.getElementById('modal-claim-link');
+    if (g.url) { claimLink.href = g.url; claimLink.classList.remove('hidden'); }
+    else        { claimLink.classList.add('hidden'); }
+
+    updateModalClaimedState();
+    document.getElementById('game-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(event) {
+    if (event && !event.target.closest('[data-close-modal]') &&
+        event.target !== document.getElementById('game-modal')) return;
+    document.getElementById('game-modal').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('game-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // restore UI on load
+  function restoreFilterUI() {
+    ['system', 'store'].forEach(name => {
+      const activeSet = name === 'system' ? activeSystems : activeStores;
+      if (activeSet.size === 0) return;
+      document.querySelector(`.${name}-cb[value="__all__"]`).checked = false;
+      document.querySelectorAll(`.${name}-cb:not([value="__all__"])`).forEach(cb => {
+        cb.checked = activeSet.has(cb.value);
+      });
+      updateLabel(name, activeSet, name === 'system' ? 'Spieleplattform' : 'Store');
+    });
+  }
+
+  restoreFilterUI();
+  applyFilters();
+  applyClaimedState();
+</script>
+
+{% endblock %}

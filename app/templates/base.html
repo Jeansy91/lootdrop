@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ t('site_title') }}</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: '#10b981' } } }
+    }
+  </script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="/" class="text-emerald-400 font-bold text-lg tracking-tight shrink-0">
+        Lootdrop
+      </a>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="/" class="text-gray-300 hover:text-white">{{ t('nav_home') }}</a>
+        <a href="/subscribe" class="text-gray-300 hover:text-white">{{ t('nav_subscribe') }}</a>
+        <!-- Language switcher -->
+        <div class="flex gap-1">
+          <a href="/?lang=de"
+             class="text-xs px-2 py-1 rounded transition-colors
+                    {% if lang == 'de' %}bg-emerald-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">
+            DE
+          </a>
+          <a href="/?lang=en"
+             class="text-xs px-2 py-1 rounded transition-colors
+                    {% if lang == 'en' %}bg-emerald-600 text-white{% else %}text-gray-400 hover:text-white{% endif %}">
+            EN
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 pt-0 pb-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 border-t border-gray-700 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-center text-gray-500 text-sm">
+      {{ t('footer_powered') }}
+      <a href="https://www.gamerpower.com" target="_blank" rel="noopener noreferrer"
+         class="text-emerald-400 hover:underline">GamerPower</a>
+    </div>
+  </footer>
+
+</body>
+</html>
