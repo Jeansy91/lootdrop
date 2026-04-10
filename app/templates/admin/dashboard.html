@@ -18,101 +18,45 @@
   <!-- Giveaways -->
   <a href="/admin/giveaways"
      class="bg-gray-900 rounded-2xl p-5 border border-white/5 hover:border-emerald-500/30
-            hover:bg-white/[0.02] transition-all group block">
-    <p class="text-gray-500 text-xs uppercase tracking-wider mb-2">{{ t('admin_stats_giveaways') }}</p>
-    <p class="text-3xl font-bold text-white group-hover:text-emerald-400 transition-colors">{{ giveaway_count }}</p>
+            hover:bg-white/[0.02] transition-all group flex flex-col">
+    <p class="text-gray-500 text-xs uppercase tracking-wider mb-3">{{ t('admin_stats_giveaways') }}</p>
+    <p class="text-3xl font-bold text-white group-hover:text-emerald-400 transition-colors mt-auto">{{ giveaway_count }}</p>
   </a>
 
   <!-- Subscribers -->
   <a href="/admin/subscribers"
      class="bg-gray-900 rounded-2xl p-5 border border-white/5 hover:border-emerald-500/30
-            hover:bg-white/[0.02] transition-all group block">
-    <p class="text-gray-500 text-xs uppercase tracking-wider mb-2">{{ t('admin_stats_subscribers') }}</p>
-    <p class="text-3xl font-bold text-white group-hover:text-emerald-400 transition-colors">{{ subscriber_count }}</p>
+            hover:bg-white/[0.02] transition-all group flex flex-col">
+    <p class="text-gray-500 text-xs uppercase tracking-wider mb-3">{{ t('admin_stats_subscribers') }}</p>
+    <p class="text-3xl font-bold text-white group-hover:text-emerald-400 transition-colors mt-auto">{{ subscriber_count }}</p>
   </a>
 
   <!-- Sync Interval -->
-  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 relative" id="tile-sync">
-    <div class="flex items-start justify-between mb-2">
+  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 flex flex-col">
+    <div class="flex items-start justify-between mb-3">
       <p class="text-gray-500 text-xs uppercase tracking-wider">Sync-Intervall</p>
-      <button onclick="startEdit('sync')"
-              id="edit-btn-sync"
-              class="text-gray-600 hover:text-emerald-400 transition-colors text-xs">
-        Bearbeiten
+      <button onclick="openEditModal('sync')"
+              class="text-gray-600 hover:text-emerald-400 transition-colors p-0.5 rounded">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487a2.032 2.032 0 112.651 2.651L7.5 19.152l-4 1 1-4 12.362-11.665z"/>
+        </svg>
       </button>
     </div>
-    <!-- Display -->
-    <div id="display-sync">
-      <p class="text-3xl font-bold text-white">{{ sync_interval }}<span class="text-base text-gray-500 font-normal ml-1">min</span></p>
-    </div>
-    <!-- Edit -->
-    <form id="form-sync" action="/admin/settings" method="post"
-          class="hidden" onsubmit="submitSettings(event, 'sync')">
-      <input type="hidden" name="email_hour"   value="{{ email_hour }}">
-      <input type="hidden" name="email_minute" value="{{ email_minute }}">
-      <div class="flex items-center gap-2 mt-1">
-        <input type="number" name="sync_interval" min="1" max="1440" value="{{ sync_interval }}"
-               id="input-sync"
-               class="w-20 bg-gray-800 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm
-                      focus:outline-none focus:border-emerald-500 transition-colors">
-        <span class="text-gray-500 text-sm">min</span>
-      </div>
-      <div class="flex gap-2 mt-3">
-        <button type="submit"
-                class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg
-                       font-medium transition-colors">
-          Speichern
-        </button>
-        <button type="button" onclick="cancelEdit('sync')"
-                class="text-xs text-gray-500 hover:text-white transition-colors px-2">
-          Abbrechen
-        </button>
-      </div>
-    </form>
+    <p class="text-3xl font-bold text-white mt-auto">{{ sync_interval }}<span class="text-base text-gray-500 font-normal ml-1">min</span></p>
   </div>
 
   <!-- Email Time -->
-  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 relative" id="tile-email">
-    <div class="flex items-start justify-between mb-2">
+  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 flex flex-col">
+    <div class="flex items-start justify-between mb-3">
       <p class="text-gray-500 text-xs uppercase tracking-wider">E-Mail</p>
-      <button onclick="startEdit('email')"
-              id="edit-btn-email"
-              class="text-gray-600 hover:text-emerald-400 transition-colors text-xs">
-        Bearbeiten
+      <button onclick="openEditModal('email')"
+              class="text-gray-600 hover:text-emerald-400 transition-colors p-0.5 rounded">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487a2.032 2.032 0 112.651 2.651L7.5 19.152l-4 1 1-4 12.362-11.665z"/>
+        </svg>
       </button>
     </div>
-    <!-- Display -->
-    <div id="display-email">
-      <p class="text-3xl font-bold text-white">{{ '%02d' % email_hour }}:{{ '%02d' % email_minute }}<span class="text-base text-gray-500 font-normal ml-1">UTC</span></p>
-    </div>
-    <!-- Edit -->
-    <form id="form-email" action="/admin/settings" method="post"
-          class="hidden" onsubmit="submitSettings(event, 'email')">
-      <input type="hidden" name="sync_interval" value="{{ sync_interval }}">
-      <div class="flex items-center gap-1.5 mt-1">
-        <input type="number" name="email_hour" min="0" max="23" value="{{ email_hour }}"
-               id="input-email-hour"
-               class="w-14 bg-gray-800 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm
-                      focus:outline-none focus:border-emerald-500 transition-colors">
-        <span class="text-gray-400 font-bold text-sm">:</span>
-        <input type="number" name="email_minute" min="0" max="59" value="{{ '%02d' % email_minute }}"
-               id="input-email-minute"
-               class="w-14 bg-gray-800 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm
-                      focus:outline-none focus:border-emerald-500 transition-colors">
-        <span class="text-gray-500 text-xs">UTC</span>
-      </div>
-      <div class="flex gap-2 mt-3">
-        <button type="submit"
-                class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg
-                       font-medium transition-colors">
-          Speichern
-        </button>
-        <button type="button" onclick="cancelEdit('email')"
-                class="text-xs text-gray-500 hover:text-white transition-colors px-2">
-          Abbrechen
-        </button>
-      </div>
-    </form>
+    <p class="text-3xl font-bold text-white mt-auto">{{ '%02d' % email_hour }}:{{ '%02d' % email_minute }}<span class="text-base text-gray-500 font-normal ml-1">UTC</span></p>
   </div>
 
 </div>
@@ -124,8 +68,7 @@
     <p class="text-xs text-gray-500 mb-4">Giveaways sofort von GamerPower abrufen</p>
     <form method="post" action="/admin/refresh">
       <button type="submit"
-              class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm
-                     font-medium transition-colors">
+              class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
         Jetzt synchronisieren
       </button>
     </form>
@@ -137,32 +80,117 @@
     <form id="form-send-email" method="post" action="/admin/send-email"></form>
     <button type="button"
             onclick="showModal('E-Mail versenden', 'E-Mails mit allen ungesendeten Giveaways jetzt versenden?', 'Jetzt senden', 'bg-emerald-600 hover:bg-emerald-500 text-white', () => document.getElementById('form-send-email').submit())"
-            class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm
-                   font-medium transition-colors">
+            class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
       E-Mail senden
     </button>
   </div>
 </div>
 
+<!-- Edit Sync Modal -->
+<div id="edit-sync-overlay"
+     class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+     onclick="if(event.target===this)closeEditModal('sync')">
+  <div class="bg-gray-900 border border-white/10 rounded-2xl p-6 w-full max-w-xs shadow-2xl">
+    <h3 class="text-base font-semibold text-white mb-1">Sync-Intervall</h3>
+    <p class="text-xs text-gray-500 mb-5">Wie oft soll die GamerPower API abgefragt werden?</p>
+    <form method="post" action="/admin/settings">
+      <input type="hidden" name="email_hour"   value="{{ email_hour }}">
+      <input type="hidden" name="email_minute" value="{{ email_minute }}">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="flex items-center bg-gray-800 border border-white/10 rounded-lg overflow-hidden focus-within:border-emerald-500 transition-colors">
+          <button type="button" onclick="stepInput('modal-sync', -1)"
+                  class="px-3 py-2 text-gray-500 hover:text-white hover:bg-white/5 transition-colors leading-none select-none">−</button>
+          <input type="number" name="sync_interval" min="1" max="1440" value="{{ sync_interval }}"
+                 id="modal-sync"
+                 class="w-14 bg-transparent py-2 text-white text-sm text-center focus:outline-none">
+          <button type="button" onclick="stepInput('modal-sync', 1)"
+                  class="px-3 py-2 text-gray-500 hover:text-white hover:bg-white/5 transition-colors leading-none select-none">+</button>
+        </div>
+        <span class="text-gray-500 text-sm">min</span>
+      </div>
+      <div class="flex gap-3 justify-end">
+        <button type="button" onclick="closeEditModal('sync')"
+                class="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-white/5">
+          Abbrechen
+        </button>
+        <button type="submit"
+                class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          Speichern
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Email Modal -->
+<div id="edit-email-overlay"
+     class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+     onclick="if(event.target===this)closeEditModal('email')">
+  <div class="bg-gray-900 border border-white/10 rounded-2xl p-6 w-full max-w-xs shadow-2xl">
+    <h3 class="text-base font-semibold text-white mb-1">E-Mail-Versandzeit</h3>
+    <p class="text-xs text-gray-500 mb-5">Uhrzeit für den täglichen E-Mail-Versand (UTC)</p>
+    <form method="post" action="/admin/settings">
+      <input type="hidden" name="sync_interval" value="{{ sync_interval }}">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="flex items-center bg-gray-800 border border-white/10 rounded-lg overflow-hidden focus-within:border-emerald-500 transition-colors">
+          <button type="button" onclick="stepInput('modal-email-hour', -1)"
+                  class="px-3 py-2 text-gray-500 hover:text-white hover:bg-white/5 transition-colors leading-none select-none">−</button>
+          <input type="number" name="email_hour" min="0" max="23" value="{{ email_hour }}"
+                 id="modal-email-hour"
+                 class="w-12 bg-transparent py-2 text-white text-sm text-center focus:outline-none">
+          <button type="button" onclick="stepInput('modal-email-hour', 1)"
+                  class="px-3 py-2 text-gray-500 hover:text-white hover:bg-white/5 transition-colors leading-none select-none">+</button>
+        </div>
+        <span class="text-gray-400 font-bold">:</span>
+        <div class="flex items-center bg-gray-800 border border-white/10 rounded-lg overflow-hidden focus-within:border-emerald-500 transition-colors">
+          <button type="button" onclick="stepInput('modal-email-minute', -1)"
+                  class="px-3 py-2 text-gray-500 hover:text-white hover:bg-white/5 transition-colors leading-none select-none">−</button>
+          <input type="number" name="email_minute" min="0" max="59" value="{{ '%02d' % email_minute }}"
+                 id="modal-email-minute"
+                 class="w-12 bg-transparent py-2 text-white text-sm text-center focus:outline-none">
+          <button type="button" onclick="stepInput('modal-email-minute', 1)"
+                  class="px-3 py-2 text-gray-500 hover:text-white hover:bg-white/5 transition-colors leading-none select-none">+</button>
+        </div>
+        <span class="text-gray-500 text-sm">UTC</span>
+      </div>
+      <div class="flex gap-3 justify-end">
+        <button type="button" onclick="closeEditModal('email')"
+                class="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-white/5">
+          Abbrechen
+        </button>
+        <button type="submit"
+                class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          Speichern
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-  function startEdit(name) {
-    document.getElementById(`display-${name}`).classList.add('hidden');
-    document.getElementById(`form-${name}`).classList.remove('hidden');
-    document.getElementById(`edit-btn-${name}`).classList.add('hidden');
-    // focus first input
-    const first = document.querySelector(`#form-${name} input[type="number"]:not([type="hidden"])`);
-    if (first) first.focus();
+  function stepInput(id, delta) {
+    const el = document.getElementById(id);
+    const val = parseInt(el.value, 10) || 0;
+    const min = parseInt(el.min, 10);
+    const max = parseInt(el.max, 10);
+    el.value = Math.min(max, Math.max(min, val + delta));
   }
 
-  function cancelEdit(name) {
-    document.getElementById(`display-${name}`).classList.remove('hidden');
-    document.getElementById(`form-${name}`).classList.add('hidden');
-    document.getElementById(`edit-btn-${name}`).classList.remove('hidden');
+  function openEditModal(name) {
+    document.getElementById(`edit-${name}-overlay`).classList.remove('hidden');
+    const first = document.querySelector(`#edit-${name}-overlay input[type="number"]`);
+    if (first) setTimeout(() => first.focus(), 50);
   }
 
-  function submitSettings(event, name) {
-    // let the form submit normally — page will reload with updated values
+  function closeEditModal(name) {
+    document.getElementById(`edit-${name}-overlay`).classList.add('hidden');
   }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ['sync', 'email'].forEach(n => closeEditModal(n));
+    }
+  });
 </script>
 
 {% endblock %}
