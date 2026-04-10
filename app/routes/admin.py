@@ -90,9 +90,7 @@ async def dashboard(request: Request, session: Session = Depends(get_session)):
         _ctx(
             request,
             giveaway_count=len(get_active_giveaways(session)),
-            subscriber_count=len(session.exec(
-                select(Subscriber).where(Subscriber.is_active == True)
-            ).all()),
+            subscriber_count=len(session.exec(select(Subscriber)).all()),
             sync_interval=get_sync_interval(session),
             email_hour=hour,
             email_minute=minute,
@@ -143,15 +141,60 @@ async def send_email_now(request: Request, session: Session = Depends(get_sessio
     if not _require_admin(request):
         return RedirectResponse(url="/admin/login")
     unsent = get_unsent_giveaways(session)
-    subscribers = list(
-        session.exec(select(Subscriber).where(Subscriber.is_active == True)).all()
-    )
+    subscribers = list(session.exec(select(Subscriber)).all())
     base_url = str(request.base_url).rstrip("/")
     send_daily_emails(unsent, subscribers, base_url)
     mark_as_sent(session, unsent)
     lang = get_lang(request)
     request.session["message"] = t(lang, "admin_trigger_success")
     return RedirectResponse(url="/admin/dashboard", status_code=303)
+
+
+# ── Giveaways ─────────────────────────────────────────────────────────────────
+
+@router.get("/giveaways", response_class=HTMLResponse)
+async def giveaways_list(request: Request, session: Session = Depends(get_session)):
+    if not _require_admin(request):
+        return RedirectResponse(url="/admin/login")
+    message = request.session.pop("message", None)
+    giveaways = list(
+        session.exec(select(Giveaway).order_by(Giveaway.id.desc())).all()
+    )
+    return templates.TemplateResponse(
+        "admin/giveaways.html",
+        _ctx(request, giveaways=giveaways, message=message),
+    )
+
+
+@router.post("/giveaways/{giveaway_id}/delete")
+async def delete_giveaway(
+    request: Request,
+    giveaway_id: int,
+    session: Session = Depends(get_session),
+):
+    if not _require_admin(request):
+        return RedirectResponse(url="/admin/login")
+    giveaway = session.get(Giveaway, giveaway_id)
+    if giveaway:
+        session.delete(giveaway)
+        session.commit()
+    return RedirectResponse(url="/admin/giveaways", status_code=303)
+
+
+@router.post("/giveaways/{giveaway_id}/reset-email")
+async def reset_email_status(
+    request: Request,
+    giveaway_id: int,
+    session: Session = Depends(get_session),
+):
+    if not _require_admin(request):
+        return RedirectResponse(url="/admin/login")
+    giveaway = session.get(Giveaway, giveaway_id)
+    if giveaway:
+        giveaway.email_sent = False
+        session.add(giveaway)
+        session.commit()
+    return RedirectResponse(url="/admin/giveaways", status_code=303)
 
 
 # ── Subscribers ───────────────────────────────────────────────────────────────

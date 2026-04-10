@@ -2,65 +2,61 @@
 {% block content %}
 
 <!-- Filter -->
-<div class="flex flex-wrap gap-3 mb-6 sticky top-[53px] z-40 bg-gray-900 mt-0 pt-3 pb-3 -mx-4 px-4 border-b border-gray-800">
+<div class="flex flex-wrap gap-2 mb-6 sticky top-[57px] z-40 bg-gray-900/80 backdrop-blur-md mt-0 pt-3 pb-3 -mx-4 px-4">
 
   <div class="relative" id="dd-system">
-    <button onclick="toggleDropdown('system')"
-            class="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg
-                   px-3 py-1.5 text-sm text-white hover:border-emerald-500 transition-colors">
+    <button onclick="toggleDropdown('system')" id="dd-system-btn"
+            class="flex items-center justify-between gap-8 bg-gray-800 border border-white/10 rounded-lg
+                   px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors min-w-[180px]">
       <span id="dd-system-label">Spieleplattform: {{ t('filter_all') }}</span>
-      <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg id="dd-system-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
       </svg>
     </button>
     <div id="dd-system-panel"
-         class="hidden absolute left-0 top-full mt-1 z-50 bg-gray-800 border border-gray-600
-                rounded-xl shadow-xl p-2 min-w-48">
-      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
-        <input type="checkbox" value="__all__" checked onchange="onFilterChange('system', this)"
-               class="system-cb rounded border-gray-500 bg-gray-700 text-emerald-500
-                      focus:ring-emerald-500 focus:ring-offset-gray-800">
-        <span class="text-sm text-gray-200">{{ t('filter_all') }}</span>
-      </label>
-      <div class="border-t border-gray-700 my-1"></div>
-      {% for group in system_groups %}
-      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
-        <input type="checkbox" value="{{ group }}" onchange="onFilterChange('system', this)"
-               class="system-cb rounded border-gray-500 bg-gray-700 text-emerald-500
-                      focus:ring-emerald-500 focus:ring-offset-gray-800">
-        <span class="text-sm text-gray-300">{{ group }}</span>
-      </label>
-      {% endfor %}
+         class="hidden absolute left-0 top-full mt-1.5 z-50 bg-gray-900 border border-white/10
+                rounded-xl shadow-2xl overflow-hidden min-w-[200px]">
+      <div class="p-1.5">
+        <label class="dd-item system-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
+          <input type="checkbox" value="__all__" checked onchange="onFilterChange('system', this)" class="system-cb">
+          <span class="text-sm">{{ t('filter_all') }}</span>
+        </label>
+        <div class="border-t border-white/5 my-1 mx-1"></div>
+        {% for group in system_groups %}
+        <label class="dd-item system-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
+          <input type="checkbox" value="{{ group }}" onchange="onFilterChange('system', this)" class="system-cb">
+          <span class="text-sm">{{ group }}</span>
+        </label>
+        {% endfor %}
+      </div>
     </div>
   </div>
 
   <div class="relative" id="dd-store">
-    <button onclick="toggleDropdown('store')"
-            class="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg
-                   px-3 py-1.5 text-sm text-white hover:border-emerald-500 transition-colors">
+    <button onclick="toggleDropdown('store')" id="dd-store-btn"
+            class="flex items-center justify-between gap-8 bg-gray-900 border border-white/10 rounded-lg
+                   px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors min-w-[160px]">
       <span id="dd-store-label">Store: {{ t('filter_all') }}</span>
-      <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg id="dd-store-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
       </svg>
     </button>
     <div id="dd-store-panel"
-         class="hidden absolute left-0 top-full mt-1 z-50 bg-gray-800 border border-gray-600
-                rounded-xl shadow-xl p-2 min-w-48">
-      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
-        <input type="checkbox" value="__all__" checked onchange="onFilterChange('store', this)"
-               class="store-cb rounded border-gray-500 bg-gray-700 text-emerald-500
-                      focus:ring-emerald-500 focus:ring-offset-gray-800">
-        <span class="text-sm text-gray-200">{{ t('filter_all') }}</span>
-      </label>
-      <div class="border-t border-gray-700 my-1"></div>
-      {% for group in store_groups %}
-      <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer">
-        <input type="checkbox" value="{{ group }}" onchange="onFilterChange('store', this)"
-               class="store-cb rounded border-gray-500 bg-gray-700 text-emerald-500
-                      focus:ring-emerald-500 focus:ring-offset-gray-800">
-        <span class="text-sm text-gray-300">{{ group }}</span>
-      </label>
-      {% endfor %}
+         class="hidden absolute left-0 top-full mt-1.5 z-50 bg-gray-900 border border-white/10
+                rounded-xl shadow-2xl overflow-hidden min-w-[180px]">
+      <div class="p-1.5">
+        <label class="dd-item store-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
+          <input type="checkbox" value="__all__" checked onchange="onFilterChange('store', this)" class="store-cb">
+          <span class="text-sm">{{ t('filter_all') }}</span>
+        </label>
+        <div class="border-t border-white/5 my-1 mx-1"></div>
+        {% for group in store_groups %}
+        <label class="dd-item store-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
+          <input type="checkbox" value="{{ group }}" onchange="onFilterChange('store', this)" class="store-cb">
+          <span class="text-sm">{{ group }}</span>
+        </label>
+        {% endfor %}
+      </div>
     </div>
   </div>
 
@@ -362,14 +358,21 @@
   }
 
   function toggleDropdown(name) {
-    const panel = document.getElementById(`dd-${name}-panel`);
-    const isOpen = !panel.classList.contains('hidden');
+    const panel   = document.getElementById(`dd-${name}-panel`);
+    const chevron = document.getElementById(`dd-${name}-chevron`);
+    const isOpen  = !panel.classList.contains('hidden');
     closeAllDropdowns();
-    if (!isOpen) panel.classList.remove('hidden');
+    if (!isOpen) {
+      panel.classList.remove('hidden');
+      chevron.classList.add('rotate-180');
+    }
   }
 
   function closeAllDropdowns() {
-    document.querySelectorAll('#dd-system-panel, #dd-store-panel').forEach(p => p.classList.add('hidden'));
+    ['system', 'store'].forEach(name => {
+      document.getElementById(`dd-${name}-panel`).classList.add('hidden');
+      document.getElementById(`dd-${name}-chevron`).classList.remove('rotate-180');
+    });
   }
 
   document.addEventListener('click', e => {

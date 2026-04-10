@@ -80,31 +80,74 @@ async def subscribe(
 
 
 @router.get("/unsubscribe", response_class=HTMLResponse)
-async def unsubscribe(
+async def preferences_page(
     request: Request,
     token: str = None,
+    saved: bool = False,
+    done: bool = False,
     session: Session = Depends(get_session),
 ):
-    lang = get_lang(request)
-
-    def _resp(success: bool):
+    if done:
         return templates.TemplateResponse(
             "unsubscribe.html",
-            {"request": request, "lang": lang,
-             "t": lambda key: t(lang, key), "success": success},
+            _ctx(request, subscriber=None, invalid=False, saved=False, unsubscribed=True),
         )
 
     if not token:
-        return _resp(False)
+        return templates.TemplateResponse(
+            "unsubscribe.html",
+            _ctx(request, subscriber=None, invalid=True, saved=False, unsubscribed=False),
+        )
 
     subscriber = session.exec(
         select(Subscriber).where(Subscriber.token == token)
     ).first()
 
     if not subscriber:
-        return _resp(False)
+        return templates.TemplateResponse(
+            "unsubscribe.html",
+            _ctx(request, subscriber=None, invalid=True, saved=False, unsubscribed=False),
+        )
 
-    subscriber.is_active = False
-    session.add(subscriber)
-    session.commit()
-    return _resp(True)
+    return templates.TemplateResponse(
+        "unsubscribe.html",
+        _ctx(request, subscriber=subscriber, invalid=False, saved=saved, unsubscribed=False),
+    )
+
+
+@router.post("/unsubscribe/save")
+async def save_preferences(
+    request: Request,
+    token: str = Form(...),
+    language: str = Form("de"),
+    platforms: List[str] = Form(default=[]),
+    session: Session = Depends(get_session),
+):
+    subscriber = session.exec(
+        select(Subscriber).where(Subscriber.token == token)
+    ).first()
+
+    if subscriber:
+        subscriber.language = language if language in ("de", "en") else "de"
+        subscriber.subscriber_platforms = ",".join(g for g in platforms if g in _ALL_GROUPS)
+        session.add(subscriber)
+        session.commit()
+
+    return RedirectResponse(url=f"/unsubscribe?token={token}&saved=1", status_code=303)
+
+
+@router.post("/unsubscribe")
+async def do_unsubscribe(
+    request: Request,
+    token: str = Form(...),
+    session: Session = Depends(get_session),
+):
+    subscriber = session.exec(
+        select(Subscriber).where(Subscriber.token == token)
+    ).first()
+
+    if subscriber:
+        session.delete(subscriber)
+        session.commit()
+
+    return RedirectResponse(url="/unsubscribe?done=1", status_code=303)

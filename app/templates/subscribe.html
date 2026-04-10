@@ -21,8 +21,8 @@
         {{ t('subscribe_email_label') }}
       </label>
       <input type="email" name="email" required autocomplete="email"
-             class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2
-                    text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none">
+             class="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm
+                    placeholder-gray-500 focus:border-emerald-500/50 focus:outline-none transition-colors">
     </div>
 
     <!-- Sprache -->
@@ -30,12 +30,42 @@
       <label class="block text-sm text-gray-300 mb-1">
         {{ t('subscribe_lang_label') }}
       </label>
-      <select name="language"
-              class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2
-                     text-white focus:border-emerald-500 focus:outline-none">
-        <option value="de" {% if lang == 'de' %}selected{% endif %}>{{ t('lang_de') }}</option>
-        <option value="en" {% if lang == 'en' %}selected{% endif %}>{{ t('lang_en') }}</option>
-      </select>
+      <div class="relative" id="dd-lang">
+        <input type="hidden" name="language" id="lang-value" value="{{ lang }}">
+        <button type="button" onclick="toggleLangDd()"
+                class="w-full flex items-center justify-between gap-4 bg-gray-800 border border-white/10
+                       rounded-lg px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors">
+          <span id="lang-label">{% if lang == 'en' %}{{ t('lang_en') }}{% else %}{{ t('lang_de') }}{% endif %}</span>
+          <svg id="lang-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div id="dd-lang-panel"
+             class="hidden absolute left-0 top-full mt-1.5 z-50 w-full bg-gray-900 border border-white/10
+                    rounded-xl shadow-2xl overflow-hidden">
+          <div class="p-1.5">
+            <button type="button" onclick="selectLang('de', '{{ t('lang_de') }}')"
+                    class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
+                           hover:bg-white/5 transition-colors text-sm" data-value="de">
+              <span>{{ t('lang_de') }}</span>
+              <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'de' %}hidden{% endif %}"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </button>
+            <button type="button" onclick="selectLang('en', '{{ t('lang_en') }}')"
+                    class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
+                           hover:bg-white/5 transition-colors text-sm" data-value="en">
+              <span>{{ t('lang_en') }}</span>
+              <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'en' %}hidden{% endif %}"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Plattformen -->
@@ -47,14 +77,13 @@
           {{ t('platforms_all') }}
         </button>
       </div>
-      <div class="bg-gray-800 border border-gray-600 rounded-lg p-3 space-y-2">
+      <div class="bg-gray-900 border border-white/10 rounded-xl p-3 space-y-1">
         {% for group in platform_groups %}
-        <label class="flex items-center gap-3 cursor-pointer group">
+        <label class="flex items-center gap-3 cursor-pointer group px-1 py-1 rounded-lg hover:bg-white/5 transition-colors">
           <input type="checkbox" name="platforms" value="{{ group }}"
                  {% if group in selected_platforms %}checked{% endif %}
-                 class="platform-cb w-4 h-4 rounded border-gray-500 bg-gray-700
-                        text-emerald-500 focus:ring-emerald-500 focus:ring-offset-gray-900">
-          <span class="text-sm text-gray-300 group-hover:text-white transition-colors">
+                 class="platform-cb">
+          <span class="text-sm text-gray-400 group-hover:text-white transition-colors">
             {{ group }}
           </span>
         </label>
@@ -77,6 +106,43 @@
     const allChecked = [...boxes].every(b => b.checked);
     boxes.forEach(b => b.checked = !allChecked);
   }
+
+  function toggleLangDd() {
+    const panel   = document.getElementById('dd-lang-panel');
+    const chevron = document.getElementById('lang-chevron');
+    const isOpen  = !panel.classList.contains('hidden');
+    panel.classList.toggle('hidden', isOpen);
+    chevron.classList.toggle('rotate-180', !isOpen);
+  }
+
+  function selectLang(value, label) {
+    document.getElementById('lang-value').value = value;
+    document.getElementById('lang-label').textContent = label;
+    document.querySelectorAll('.lang-item').forEach(item => {
+      const check = item.querySelector('.lang-check');
+      const text  = item.querySelector('span');
+      const active = item.dataset.value === value;
+      check.classList.toggle('hidden', !active);
+      text.classList.toggle('text-white', active);
+      text.classList.toggle('text-gray-400', !active);
+    });
+    document.getElementById('dd-lang-panel').classList.add('hidden');
+    document.getElementById('lang-chevron').classList.remove('rotate-180');
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#dd-lang')) {
+      document.getElementById('dd-lang-panel').classList.add('hidden');
+      document.getElementById('lang-chevron').classList.remove('rotate-180');
+    }
+  });
+
+  // Init text color
+  document.querySelectorAll('.lang-item').forEach(item => {
+    const active = item.dataset.value === document.getElementById('lang-value').value;
+    item.querySelector('span').classList.toggle('text-white', active);
+    item.querySelector('span').classList.toggle('text-gray-400', !active);
+  });
 </script>
 
 {% endblock %}

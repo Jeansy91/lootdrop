@@ -1,92 +1,168 @@
 {% extends "admin/base.html" %}
 {% block content %}
 
-<h1 class="text-2xl font-bold text-white mb-6">{{ t('admin_dashboard_title') }}</h1>
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-white">{{ t('admin_dashboard_title') }}</h1>
+  <p class="text-gray-500 text-sm mt-1">Übersicht und Steuerung von Lootdrop</p>
+</div>
 
 {% if message %}
-<div class="mb-5 px-4 py-3 rounded-lg bg-emerald-900/50 border border-emerald-600
-            text-emerald-300 text-sm">
+<div class="mb-6 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm">
   {{ message }}
 </div>
 {% endif %}
 
 <!-- Stats -->
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-  <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
-    <p class="text-gray-400 text-sm">{{ t('admin_stats_giveaways') }}</p>
-    <p class="text-4xl font-bold text-white mt-1">{{ giveaway_count }}</p>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+
+  <!-- Giveaways -->
+  <a href="/admin/giveaways"
+     class="bg-gray-900 rounded-2xl p-5 border border-white/5 hover:border-emerald-500/30
+            hover:bg-white/[0.02] transition-all group block">
+    <p class="text-gray-500 text-xs uppercase tracking-wider mb-2">{{ t('admin_stats_giveaways') }}</p>
+    <p class="text-3xl font-bold text-white group-hover:text-emerald-400 transition-colors">{{ giveaway_count }}</p>
+  </a>
+
+  <!-- Subscribers -->
+  <a href="/admin/subscribers"
+     class="bg-gray-900 rounded-2xl p-5 border border-white/5 hover:border-emerald-500/30
+            hover:bg-white/[0.02] transition-all group block">
+    <p class="text-gray-500 text-xs uppercase tracking-wider mb-2">{{ t('admin_stats_subscribers') }}</p>
+    <p class="text-3xl font-bold text-white group-hover:text-emerald-400 transition-colors">{{ subscriber_count }}</p>
+  </a>
+
+  <!-- Sync Interval -->
+  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 relative" id="tile-sync">
+    <div class="flex items-start justify-between mb-2">
+      <p class="text-gray-500 text-xs uppercase tracking-wider">Sync-Intervall</p>
+      <button onclick="startEdit('sync')"
+              id="edit-btn-sync"
+              class="text-gray-600 hover:text-emerald-400 transition-colors text-xs">
+        Bearbeiten
+      </button>
+    </div>
+    <!-- Display -->
+    <div id="display-sync">
+      <p class="text-3xl font-bold text-white">{{ sync_interval }}<span class="text-base text-gray-500 font-normal ml-1">min</span></p>
+    </div>
+    <!-- Edit -->
+    <form id="form-sync" action="/admin/settings" method="post"
+          class="hidden" onsubmit="submitSettings(event, 'sync')">
+      <input type="hidden" name="email_hour"   value="{{ email_hour }}">
+      <input type="hidden" name="email_minute" value="{{ email_minute }}">
+      <div class="flex items-center gap-2 mt-1">
+        <input type="number" name="sync_interval" min="1" max="1440" value="{{ sync_interval }}"
+               id="input-sync"
+               class="w-20 bg-gray-800 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm
+                      focus:outline-none focus:border-emerald-500 transition-colors">
+        <span class="text-gray-500 text-sm">min</span>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button type="submit"
+                class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg
+                       font-medium transition-colors">
+          Speichern
+        </button>
+        <button type="button" onclick="cancelEdit('sync')"
+                class="text-xs text-gray-500 hover:text-white transition-colors px-2">
+          Abbrechen
+        </button>
+      </div>
+    </form>
   </div>
-  <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
-    <p class="text-gray-400 text-sm">{{ t('admin_stats_subscribers') }}</p>
-    <p class="text-4xl font-bold text-white mt-1">{{ subscriber_count }}</p>
+
+  <!-- Email Time -->
+  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 relative" id="tile-email">
+    <div class="flex items-start justify-between mb-2">
+      <p class="text-gray-500 text-xs uppercase tracking-wider">E-Mail</p>
+      <button onclick="startEdit('email')"
+              id="edit-btn-email"
+              class="text-gray-600 hover:text-emerald-400 transition-colors text-xs">
+        Bearbeiten
+      </button>
+    </div>
+    <!-- Display -->
+    <div id="display-email">
+      <p class="text-3xl font-bold text-white">{{ '%02d' % email_hour }}:{{ '%02d' % email_minute }}<span class="text-base text-gray-500 font-normal ml-1">UTC</span></p>
+    </div>
+    <!-- Edit -->
+    <form id="form-email" action="/admin/settings" method="post"
+          class="hidden" onsubmit="submitSettings(event, 'email')">
+      <input type="hidden" name="sync_interval" value="{{ sync_interval }}">
+      <div class="flex items-center gap-1.5 mt-1">
+        <input type="number" name="email_hour" min="0" max="23" value="{{ email_hour }}"
+               id="input-email-hour"
+               class="w-14 bg-gray-800 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm
+                      focus:outline-none focus:border-emerald-500 transition-colors">
+        <span class="text-gray-400 font-bold text-sm">:</span>
+        <input type="number" name="email_minute" min="0" max="59" value="{{ '%02d' % email_minute }}"
+               id="input-email-minute"
+               class="w-14 bg-gray-800 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm
+                      focus:outline-none focus:border-emerald-500 transition-colors">
+        <span class="text-gray-500 text-xs">UTC</span>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button type="submit"
+                class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg
+                       font-medium transition-colors">
+          Speichern
+        </button>
+        <button type="button" onclick="cancelEdit('email')"
+                class="text-xs text-gray-500 hover:text-white transition-colors px-2">
+          Abbrechen
+        </button>
+      </div>
+    </form>
   </div>
+
 </div>
 
 <!-- Actions -->
-<div class="flex flex-wrap gap-3 mb-8">
-  <form method="post" action="/admin/refresh">
-    <button type="submit"
-            class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2
-                   rounded-lg text-sm transition-colors">
-      🔄 {{ t('refresh_giveaways') }}
-    </button>
-  </form>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5">
+    <p class="text-sm font-semibold text-white mb-1">{{ t('refresh_giveaways') }}</p>
+    <p class="text-xs text-gray-500 mb-4">Giveaways sofort von GamerPower abrufen</p>
+    <form method="post" action="/admin/refresh">
+      <button type="submit"
+              class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm
+                     font-medium transition-colors">
+        Jetzt synchronisieren
+      </button>
+    </form>
+  </div>
 
-  <form method="post" action="/admin/send-email"
-        onsubmit="return confirm('E-Mails wirklich jetzt versenden?')">
-    <button type="submit"
-            class="bg-emerald-700 hover:bg-emerald-600 text-white px-5 py-2
-                   rounded-lg text-sm transition-colors">
-      📧 {{ t('admin_trigger_email') }}
+  <div class="bg-gray-900 rounded-2xl p-5 border border-white/5">
+    <p class="text-sm font-semibold text-white mb-1">{{ t('admin_trigger_email') }}</p>
+    <p class="text-xs text-gray-500 mb-4">E-Mail mit ungesendeten Giveaways versenden</p>
+    <form id="form-send-email" method="post" action="/admin/send-email"></form>
+    <button type="button"
+            onclick="showModal('E-Mail versenden', 'E-Mails mit allen ungesendeten Giveaways jetzt versenden?', 'Jetzt senden', 'bg-emerald-600 hover:bg-emerald-500 text-white', () => document.getElementById('form-send-email').submit())"
+            class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm
+                   font-medium transition-colors">
+      E-Mail senden
     </button>
-  </form>
-
-  <a href="/admin/subscribers"
-     class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2
-            rounded-lg text-sm transition-colors inline-block">
-    👥 {{ t('admin_subscribers_title') }}
-  </a>
+  </div>
 </div>
 
-<!-- Settings -->
-<h2 class="text-lg font-semibold text-white mb-4">{{ t('admin_settings_title') }}</h2>
-<form method="post" action="/admin/settings"
-      class="bg-gray-800 border border-gray-700 rounded-xl p-5 flex flex-col gap-5 max-w-md">
+<script>
+  function startEdit(name) {
+    document.getElementById(`display-${name}`).classList.add('hidden');
+    document.getElementById(`form-${name}`).classList.remove('hidden');
+    document.getElementById(`edit-btn-${name}`).classList.add('hidden');
+    // focus first input
+    const first = document.querySelector(`#form-${name} input[type="number"]:not([type="hidden"])`);
+    if (first) first.focus();
+  }
 
-  <div>
-    <label class="block text-sm text-gray-300 mb-1">{{ t('admin_settings_sync_interval') }}</label>
-    <div class="flex items-center gap-2">
-      <input type="number" name="sync_interval" min="1" max="1440"
-             value="{{ sync_interval }}"
-             class="w-28 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white
-                    text-sm focus:outline-none focus:border-emerald-500">
-      <span class="text-gray-400 text-sm">min</span>
-    </div>
-  </div>
+  function cancelEdit(name) {
+    document.getElementById(`display-${name}`).classList.remove('hidden');
+    document.getElementById(`form-${name}`).classList.add('hidden');
+    document.getElementById(`edit-btn-${name}`).classList.remove('hidden');
+  }
 
-  <div>
-    <label class="block text-sm text-gray-300 mb-1">{{ t('admin_settings_email_time') }}</label>
-    <div class="flex items-center gap-2">
-      <input type="number" name="email_hour" min="0" max="23"
-             value="{{ email_hour }}"
-             class="w-20 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white
-                    text-sm focus:outline-none focus:border-emerald-500">
-      <span class="text-gray-400 text-sm font-bold">:</span>
-      <input type="number" name="email_minute" min="0" max="59"
-             value="{{ '%02d' % email_minute }}"
-             class="w-20 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white
-                    text-sm focus:outline-none focus:border-emerald-500">
-      <span class="text-gray-400 text-sm">UTC</span>
-    </div>
-  </div>
-
-  <div>
-    <button type="submit"
-            class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2
-                   rounded-lg text-sm transition-colors">
-      {{ t('admin_settings_save') }}
-    </button>
-  </div>
-</form>
+  function submitSettings(event, name) {
+    // let the form submit normally — page will reload with updated values
+  }
+</script>
 
 {% endblock %}

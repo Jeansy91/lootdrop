@@ -1,0 +1,88 @@
+{% extends "admin/base.html" %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-white">Giveaways</h1>
+    <p class="text-gray-500 text-sm mt-1">{{ giveaways|length }} gesamt</p>
+  </div>
+</div>
+
+{% if message %}
+<div class="mb-6 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm">
+  {{ message }}
+</div>
+{% endif %}
+
+<div class="bg-gray-900 rounded-2xl border border-white/5 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-white/5">
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium w-16">ID</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">Titel</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">Plattformen</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">Status</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">E-Mail</th>
+        <th class="px-5 py-3.5"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-white/5">
+      {% for game in giveaways %}
+      <tr class="hover:bg-white/[0.02] transition-colors">
+        <td class="px-5 py-3 text-gray-600 text-xs font-mono">{{ game.id }}</td>
+        <td class="px-5 py-3">
+          <p class="text-white font-medium leading-tight">{{ game.title }}</p>
+          {% if game.worth and game.worth not in ('N/A', '$0.00', '') %}
+          <p class="text-xs text-gray-500 mt-0.5">{{ game.worth }}</p>
+          {% endif %}
+        </td>
+        <td class="px-5 py-3">
+          <div class="flex flex-wrap gap-1">
+            {% for p in game.platforms.split(', ') if game.platforms %}
+            <span class="text-xs px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 border border-white/5">{{ p }}</span>
+            {% endfor %}
+          </div>
+        </td>
+        <td class="px-5 py-3">
+          <span class="text-xs px-2.5 py-1 rounded-full font-medium
+                       {% if game.status == 'Active' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                       {% else %}bg-gray-800 text-gray-500 border border-white/5{% endif %}">
+            {{ game.status }}
+          </span>
+        </td>
+        <td class="px-5 py-3">
+          {% if game.email_sent %}
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-500">Gesendet</span>
+            <form method="post" action="/admin/giveaways/{{ game.id }}/reset-email">
+              <button type="submit"
+                      class="text-xs text-gray-600 hover:text-amber-400 transition-colors underline underline-offset-2">
+                zurücksetzen
+              </button>
+            </form>
+          </div>
+          {% else %}
+          <span class="text-xs text-amber-500/70">Ausstehend</span>
+          {% endif %}
+        </td>
+        <td class="px-5 py-3 text-right">
+          <form id="del-game-{{ game.id }}" method="post" action="/admin/giveaways/{{ game.id }}/delete"></form>
+          <button type="button"
+                  onclick="showModal('Giveaway löschen', '{{ game.title|replace("'", "\\'") }} wirklich löschen?', 'Löschen', 'bg-red-600 hover:bg-red-500 text-white', () => document.getElementById('del-game-{{ game.id }}').submit())"
+                  class="text-xs text-red-500/60 hover:text-red-400 transition-colors">
+            Löschen
+          </button>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" class="px-5 py-16 text-center text-gray-600 text-sm">
+          Keine Giveaways vorhanden.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
