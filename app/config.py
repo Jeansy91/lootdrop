@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
-    smtp_from_name: str = "Free Games"
+    smtp_from_name: str = "Lootdrop"
     smtp_from_email: str = ""
     smtp_use_tls: bool = True
 
