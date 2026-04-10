@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # App
     secret_key: str = "change-this-to-a-long-random-secret-string"
     base_url: str = "http://localhost:8000"
-    database_path: str = "/data/freegames.db"
+    database_path: str = "/data/lootdrop.db"
 
     # Scheduler
     email_hour: int = 9
