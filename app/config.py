@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     database_path: str = "/data/lootdrop.db"
 
     # Scheduler
-    email_hour: int = 9
+    email_hour: int = 18
     email_minute: int = 0
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
