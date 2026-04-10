@@ -19,13 +19,13 @@
       <div class="p-1.5">
         <label class="dd-item system-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
           <input type="checkbox" value="__all__" checked onchange="onFilterChange('system', this)" class="system-cb">
-          <span class="text-sm">{{ t('filter_all') }}</span>
+          <span class="text-sm text-gray-400">{{ t('filter_all') }}</span>
         </label>
         <div class="border-t border-white/5 my-1 mx-1"></div>
         {% for group in system_groups %}
         <label class="dd-item system-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
           <input type="checkbox" value="{{ group }}" onchange="onFilterChange('system', this)" class="system-cb">
-          <span class="text-sm">{{ group }}</span>
+          <span class="text-sm text-gray-400">{{ group }}</span>
         </label>
         {% endfor %}
       </div>
@@ -34,7 +34,7 @@
 
   <div class="relative" id="dd-store">
     <button onclick="toggleDropdown('store')" id="dd-store-btn"
-            class="flex items-center justify-between gap-8 bg-gray-900 border border-white/10 rounded-lg
+            class="flex items-center justify-between gap-8 bg-gray-800 border border-white/10 rounded-lg
                    px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors min-w-[160px]">
       <span id="dd-store-label">Store: {{ t('filter_all') }}</span>
       <svg id="dd-store-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,13 +47,13 @@
       <div class="p-1.5">
         <label class="dd-item store-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
           <input type="checkbox" value="__all__" checked onchange="onFilterChange('store', this)" class="store-cb">
-          <span class="text-sm">{{ t('filter_all') }}</span>
+          <span class="text-sm text-gray-400">{{ t('filter_all') }}</span>
         </label>
         <div class="border-t border-white/5 my-1 mx-1"></div>
         {% for group in store_groups %}
         <label class="dd-item store-item flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/5">
           <input type="checkbox" value="{{ group }}" onchange="onFilterChange('store', this)" class="store-cb">
-          <span class="text-sm">{{ group }}</span>
+          <span class="text-sm text-gray-400">{{ group }}</span>
         </label>
         {% endfor %}
       </div>
