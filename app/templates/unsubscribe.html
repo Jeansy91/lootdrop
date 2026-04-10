@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="max-w-lg mx-auto py-12 px-4">
+<div class="max-w-lg mx-auto py-10 px-4">
 
   {% if invalid %}
   <!-- Invalid token -->
@@ -51,52 +51,78 @@
 
     <div class="bg-gray-900 rounded-2xl border border-white/5 p-6 mb-4 space-y-6">
 
-      <!-- Language -->
+      <!-- Sprache -->
       <div>
-        <p class="text-sm font-semibold text-white mb-3">{{ t('prefs_language_label') }}</p>
-        <div class="flex gap-6">
-          <label class="flex items-center gap-2 cursor-pointer group">
-            <input type="radio" name="language" value="de"
-                   {% if subscriber.language == 'de' %}checked{% endif %}>
-            <span class="text-gray-400 text-sm group-hover:text-gray-200 transition-colors">Deutsch</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer group">
-            <input type="radio" name="language" value="en"
-                   {% if subscriber.language == 'en' %}checked{% endif %}>
-            <span class="text-gray-400 text-sm group-hover:text-gray-200 transition-colors">English</span>
-          </label>
+        <label class="block text-sm font-medium text-white mb-2">{{ t('prefs_language_label') }}</label>
+        <div class="relative" id="dd-lang">
+          <input type="hidden" name="language" id="lang-value" value="{{ subscriber.language }}">
+          <button type="button" onclick="toggleLangDd()"
+                  class="w-full flex items-center justify-between gap-4 bg-gray-800 border border-white/10
+                         rounded-lg px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors">
+            <span id="lang-label">{% if subscriber.language == 'en' %}English{% else %}Deutsch{% endif %}</span>
+            <svg id="lang-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div id="dd-lang-panel"
+               class="hidden absolute left-0 top-full mt-1.5 z-50 w-full bg-gray-900 border border-white/10
+                      rounded-xl shadow-2xl overflow-hidden">
+            <div class="p-1.5">
+              <button type="button" onclick="selectLang('de', 'Deutsch')"
+                      class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
+                             hover:bg-white/5 transition-colors text-sm" data-value="de">
+                <span>Deutsch</span>
+                <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if subscriber.language != 'de' %}hidden{% endif %}"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+              </button>
+              <button type="button" onclick="selectLang('en', 'English')"
+                      class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
+                             hover:bg-white/5 transition-colors text-sm" data-value="en">
+                <span>English</span>
+                <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if subscriber.language != 'en' %}hidden{% endif %}"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="border-t border-white/5"></div>
 
-      <!-- Platforms -->
+      <!-- Plattformen -->
       <div>
-        <p class="text-sm font-semibold text-white mb-1">{{ t('prefs_platforms_label') }}</p>
-        <p class="text-xs text-gray-600 mb-3">{{ t('subscribe_platforms_hint') }}</p>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-medium text-white">{{ t('prefs_platforms_label') }}</p>
+        </div>
         <div class="grid grid-cols-2 gap-1">
           {% for group in platform_groups %}
-          <label class="flex items-center gap-2.5 cursor-pointer group px-1 py-1 rounded-lg hover:bg-white/5 transition-colors">
+          <label class="flex items-center gap-2.5 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
             <input type="checkbox" name="platforms" value="{{ group }}"
                    {% if not subscriber.subscriber_platforms or group in subscriber.subscriber_platforms.split(',') %}checked{% endif %}>
-            <span class="text-gray-400 text-sm group-hover:text-white transition-colors">{{ group }}</span>
+            <span class="text-sm text-gray-400 group-hover:text-white transition-colors">{{ group }}</span>
           </label>
           {% endfor %}
         </div>
+        <p class="text-xs text-gray-600 mt-2">{{ t('subscribe_platforms_hint') }}</p>
       </div>
 
     </div>
 
     <button type="submit"
-            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-sm
-                   font-semibold transition-colors">
+            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold
+                   py-2.5 rounded-xl text-sm transition-colors">
       {{ t('prefs_save_btn') }}
     </button>
   </form>
 
-  <!-- Unsubscribe section -->
-  <div class="mt-5 bg-gray-900 rounded-2xl border border-white/5 p-6">
-    <p class="text-sm font-semibold text-white mb-1">{{ t('prefs_unsubscribe_section') }}</p>
+  <!-- Abmelden -->
+  <div class="mt-4 bg-gray-900 rounded-2xl border border-white/5 p-6">
+    <p class="text-sm font-medium text-white mb-1">{{ t('prefs_unsubscribe_section') }}</p>
     <p class="text-xs text-gray-500 mb-4">{{ t('prefs_unsubscribe_text') }}</p>
     <form id="form-unsub" method="post" action="/unsubscribe">
       <input type="hidden" name="token" value="{{ subscriber.token }}">
@@ -110,5 +136,43 @@
 
   {% endif %}
 </div>
+
+<script>
+  function toggleLangDd() {
+    const panel   = document.getElementById('dd-lang-panel');
+    const chevron = document.getElementById('lang-chevron');
+    const isOpen  = !panel.classList.contains('hidden');
+    panel.classList.toggle('hidden', isOpen);
+    chevron.classList.toggle('rotate-180', !isOpen);
+  }
+
+  function selectLang(value, label) {
+    document.getElementById('lang-value').value = value;
+    document.getElementById('lang-label').textContent = label;
+    document.querySelectorAll('.lang-item').forEach(item => {
+      const check = item.querySelector('.lang-check');
+      const text  = item.querySelector('span');
+      const active = item.dataset.value === value;
+      check.classList.toggle('hidden', !active);
+      text.classList.toggle('text-white', active);
+      text.classList.toggle('text-gray-400', !active);
+    });
+    document.getElementById('dd-lang-panel').classList.add('hidden');
+    document.getElementById('lang-chevron').classList.remove('rotate-180');
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#dd-lang')) {
+      document.getElementById('dd-lang-panel').classList.add('hidden');
+      document.getElementById('lang-chevron').classList.remove('rotate-180');
+    }
+  });
+
+  document.querySelectorAll('.lang-item').forEach(item => {
+    const active = item.dataset.value === document.getElementById('lang-value').value;
+    item.querySelector('span').classList.toggle('text-white', active);
+    item.querySelector('span').classList.toggle('text-gray-400', !active);
+  });
+</script>
 
 {% endblock %}

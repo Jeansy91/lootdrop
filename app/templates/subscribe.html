@@ -1,103 +1,112 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="max-w-md mx-auto">
-  <h1 class="text-2xl font-bold text-white mb-1">{{ t('subscribe_title') }}</h1>
-  <p class="text-gray-400 mb-6">{{ t('subscribe_subtitle') }}</p>
+<div class="max-w-lg mx-auto py-10 px-4">
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-white">{{ t('subscribe_title') }}</h1>
+    <p class="text-gray-500 text-sm mt-1">{{ t('subscribe_subtitle') }}</p>
+  </div>
 
   {% if message %}
-  <div class="mb-5 px-4 py-3 rounded-lg text-sm
-              {% if error %}bg-red-900/50 border border-red-600 text-red-300
-              {% else %}bg-emerald-900/50 border border-emerald-600 text-emerald-300{% endif %}">
+  <div class="mb-6 px-4 py-3 rounded-xl text-sm
+              {% if error %}bg-red-500/10 border border-red-500/20 text-red-400
+              {% else %}bg-emerald-500/10 border border-emerald-500/20 text-emerald-400{% endif %}">
     {{ message }}
   </div>
   {% endif %}
 
-  <form method="post" action="/subscribe" class="space-y-5">
+  <form method="post" action="/subscribe">
+    <div class="bg-gray-900 rounded-2xl border border-white/5 p-6 mb-4 space-y-6">
 
-    <!-- E-Mail -->
-    <div>
-      <label class="block text-sm text-gray-300 mb-1">
-        {{ t('subscribe_email_label') }}
-      </label>
-      <input type="email" name="email" required autocomplete="email"
-             class="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm
-                    placeholder-gray-500 focus:border-emerald-500/50 focus:outline-none transition-colors">
-    </div>
+      <!-- E-Mail -->
+      <div>
+        <label class="block text-sm font-medium text-white mb-2">
+          {{ t('subscribe_email_label') }}
+        </label>
+        <input type="email" name="email" required autocomplete="email"
+               class="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm
+                      placeholder-gray-600 focus:border-emerald-500/50 focus:outline-none transition-colors">
+      </div>
 
-    <!-- Sprache -->
-    <div>
-      <label class="block text-sm text-gray-300 mb-1">
-        {{ t('subscribe_lang_label') }}
-      </label>
-      <div class="relative" id="dd-lang">
-        <input type="hidden" name="language" id="lang-value" value="{{ lang }}">
-        <button type="button" onclick="toggleLangDd()"
-                class="w-full flex items-center justify-between gap-4 bg-gray-800 border border-white/10
-                       rounded-lg px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors">
-          <span id="lang-label">{% if lang == 'en' %}{{ t('lang_en') }}{% else %}{{ t('lang_de') }}{% endif %}</span>
-          <svg id="lang-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-        <div id="dd-lang-panel"
-             class="hidden absolute left-0 top-full mt-1.5 z-50 w-full bg-gray-900 border border-white/10
-                    rounded-xl shadow-2xl overflow-hidden">
-          <div class="p-1.5">
-            <button type="button" onclick="selectLang('de', '{{ t('lang_de') }}')"
-                    class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
-                           hover:bg-white/5 transition-colors text-sm" data-value="de">
-              <span>{{ t('lang_de') }}</span>
-              <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'de' %}hidden{% endif %}"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-            </button>
-            <button type="button" onclick="selectLang('en', '{{ t('lang_en') }}')"
-                    class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
-                           hover:bg-white/5 transition-colors text-sm" data-value="en">
-              <span>{{ t('lang_en') }}</span>
-              <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'en' %}hidden{% endif %}"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-              </svg>
-            </button>
+      <div class="border-t border-white/5"></div>
+
+      <!-- Sprache -->
+      <div>
+        <label class="block text-sm font-medium text-white mb-2">
+          {{ t('subscribe_lang_label') }}
+        </label>
+        <div class="relative" id="dd-lang">
+          <input type="hidden" name="language" id="lang-value" value="{{ lang }}">
+          <button type="button" onclick="toggleLangDd()"
+                  class="w-full flex items-center justify-between gap-4 bg-gray-800 border border-white/10
+                         rounded-lg px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors">
+            <span id="lang-label">{% if lang == 'en' %}{{ t('lang_en') }}{% else %}{{ t('lang_de') }}{% endif %}</span>
+            <svg id="lang-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div id="dd-lang-panel"
+               class="hidden absolute left-0 top-full mt-1.5 z-50 w-full bg-gray-900 border border-white/10
+                      rounded-xl shadow-2xl overflow-hidden">
+            <div class="p-1.5">
+              <button type="button" onclick="selectLang('de', '{{ t('lang_de') }}')"
+                      class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
+                             hover:bg-white/5 transition-colors text-sm" data-value="de">
+                <span>{{ t('lang_de') }}</span>
+                <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'de' %}hidden{% endif %}"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+              </button>
+              <button type="button" onclick="selectLang('en', '{{ t('lang_en') }}')"
+                      class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
+                             hover:bg-white/5 transition-colors text-sm" data-value="en">
+                <span>{{ t('lang_en') }}</span>
+                <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'en' %}hidden{% endif %}"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Plattformen -->
-    <div>
-      <div class="flex items-center justify-between mb-2">
-        <label class="text-sm text-gray-300">{{ t('subscribe_platforms_label') }}</label>
-        <button type="button" onclick="toggleAll()"
-                class="text-xs text-emerald-400 hover:text-emerald-300">
-          {{ t('platforms_all') }}
-        </button>
+      <div class="border-t border-white/5"></div>
+
+      <!-- Plattformen -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-medium text-white">{{ t('subscribe_platforms_label') }}</p>
+          <button type="button" onclick="toggleAll()"
+                  class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors">
+            {{ t('platforms_all') }}
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-1">
+          {% for group in platform_groups %}
+          <label class="flex items-center gap-2.5 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
+            <input type="checkbox" name="platforms" value="{{ group }}"
+                   {% if group in selected_platforms %}checked{% endif %}
+                   class="platform-cb">
+            <span class="text-sm text-gray-400 group-hover:text-white transition-colors">{{ group }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <p class="text-xs text-gray-600 mt-2">{{ t('subscribe_platforms_hint') }}</p>
       </div>
-      <div class="bg-gray-900 border border-white/10 rounded-xl p-3 space-y-1">
-        {% for group in platform_groups %}
-        <label class="flex items-center gap-3 cursor-pointer group px-1 py-1 rounded-lg hover:bg-white/5 transition-colors">
-          <input type="checkbox" name="platforms" value="{{ group }}"
-                 {% if group in selected_platforms %}checked{% endif %}
-                 class="platform-cb">
-          <span class="text-sm text-gray-400 group-hover:text-white transition-colors">
-            {{ group }}
-          </span>
-        </label>
-        {% endfor %}
-      </div>
-      <p class="text-xs text-gray-500 mt-1">{{ t('subscribe_platforms_hint') }}</p>
+
     </div>
 
     <button type="submit"
-            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium
-                   py-2 rounded-lg transition-colors">
+            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold
+                   py-2.5 rounded-xl text-sm transition-colors">
       {{ t('subscribe_btn') }}
     </button>
   </form>
+
 </div>
 
 <script>
@@ -137,7 +146,6 @@
     }
   });
 
-  // Init text color
   document.querySelectorAll('.lang-item').forEach(item => {
     const active = item.dataset.value === document.getElementById('lang-value').value;
     item.querySelector('span').classList.toggle('text-white', active);
