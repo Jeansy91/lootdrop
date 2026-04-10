@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="max-w-lg mx-auto py-10 px-4">
+<div class="max-w-lg mx-auto py-10">
 
   <div class="mb-8">
     <h1 class="text-2xl font-bold text-white">{{ t('subscribe_title') }}</h1>
@@ -54,7 +54,7 @@
               <button type="button" onclick="selectLang('de', '{{ t('lang_de') }}')"
                       class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
                              hover:bg-white/5 transition-colors text-sm" data-value="de">
-                <span>{{ t('lang_de') }}</span>
+                <span class="{% if lang == 'de' %}text-white{% else %}text-gray-400{% endif %}">{{ t('lang_de') }}</span>
                 <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'de' %}hidden{% endif %}"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
@@ -63,7 +63,7 @@
               <button type="button" onclick="selectLang('en', '{{ t('lang_en') }}')"
                       class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
                              hover:bg-white/5 transition-colors text-sm" data-value="en">
-                <span>{{ t('lang_en') }}</span>
+                <span class="{% if lang == 'en' %}text-white{% else %}text-gray-400{% endif %}">{{ t('lang_en') }}</span>
                 <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 {% if lang != 'en' %}hidden{% endif %}"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
@@ -115,42 +115,6 @@
     const allChecked = [...boxes].every(b => b.checked);
     boxes.forEach(b => b.checked = !allChecked);
   }
-
-  function toggleLangDd() {
-    const panel   = document.getElementById('dd-lang-panel');
-    const chevron = document.getElementById('lang-chevron');
-    const isOpen  = !panel.classList.contains('hidden');
-    panel.classList.toggle('hidden', isOpen);
-    chevron.classList.toggle('rotate-180', !isOpen);
-  }
-
-  function selectLang(value, label) {
-    document.getElementById('lang-value').value = value;
-    document.getElementById('lang-label').textContent = label;
-    document.querySelectorAll('.lang-item').forEach(item => {
-      const check = item.querySelector('.lang-check');
-      const text  = item.querySelector('span');
-      const active = item.dataset.value === value;
-      check.classList.toggle('hidden', !active);
-      text.classList.toggle('text-white', active);
-      text.classList.toggle('text-gray-400', !active);
-    });
-    document.getElementById('dd-lang-panel').classList.add('hidden');
-    document.getElementById('lang-chevron').classList.remove('rotate-180');
-  }
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('#dd-lang')) {
-      document.getElementById('dd-lang-panel').classList.add('hidden');
-      document.getElementById('lang-chevron').classList.remove('rotate-180');
-    }
-  });
-
-  document.querySelectorAll('.lang-item').forEach(item => {
-    const active = item.dataset.value === document.getElementById('lang-value').value;
-    item.querySelector('span').classList.toggle('text-white', active);
-    item.querySelector('span').classList.toggle('text-gray-400', !active);
-  });
 </script>
 
 {% endblock %}

@@ -115,6 +115,36 @@
     </div>
   </div>
   <script>
+    function toggleLangDd() {
+      const panel   = document.getElementById('dd-lang-panel');
+      const chevron = document.getElementById('lang-chevron');
+      if (!panel) return;
+      const isOpen = !panel.classList.contains('hidden');
+      panel.classList.toggle('hidden', isOpen);
+      chevron.classList.toggle('rotate-180', !isOpen);
+    }
+
+    function selectLang(value, label) {
+      document.getElementById('lang-value').value = value;
+      document.getElementById('lang-label').textContent = label;
+      document.querySelectorAll('.lang-item').forEach(item => {
+        const active = item.dataset.value === value;
+        item.querySelector('.lang-check').classList.toggle('hidden', !active);
+        item.querySelector('span').classList.toggle('text-white', active);
+        item.querySelector('span').classList.toggle('text-gray-400', !active);
+      });
+      document.getElementById('dd-lang-panel').classList.add('hidden');
+      document.getElementById('lang-chevron').classList.remove('rotate-180');
+    }
+
+    document.addEventListener('click', e => {
+      const dd = document.getElementById('dd-lang');
+      if (dd && !e.target.closest('#dd-lang')) {
+        document.getElementById('dd-lang-panel').classList.add('hidden');
+        document.getElementById('lang-chevron').classList.remove('rotate-180');
+      }
+    });
+
     function showModal(title, message, confirmText, confirmCls, onConfirm) {
       document.getElementById('modal-title').textContent = title;
       document.getElementById('modal-message').textContent = message;

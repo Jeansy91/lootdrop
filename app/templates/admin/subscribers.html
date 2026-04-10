@@ -45,7 +45,7 @@
               <button type="button" onclick="selectLang('de', 'Deutsch')"
                       class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
                              hover:bg-white/5 transition-colors text-sm" data-value="de">
-                <span class="text-white">Deutsch</span>
+                <span>Deutsch</span>
                 <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
@@ -54,7 +54,7 @@
               <button type="button" onclick="selectLang('en', 'English')"
                       class="lang-item w-full flex items-center justify-between px-3 py-2 rounded-lg
                              hover:bg-white/5 transition-colors text-sm" data-value="en">
-                <span class="text-gray-400">English</span>
+                <span>English</span>
                 <svg class="lang-check w-3.5 h-3.5 text-emerald-400 shrink-0 hidden"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
@@ -134,36 +134,5 @@
   </table>
 </div>
 
-<script>
-  function toggleLangDd() {
-    const panel   = document.getElementById('dd-lang-panel');
-    const chevron = document.getElementById('lang-chevron');
-    const isOpen  = !panel.classList.contains('hidden');
-    panel.classList.toggle('hidden', isOpen);
-    chevron.classList.toggle('rotate-180', !isOpen);
-  }
-
-  function selectLang(value, label) {
-    document.getElementById('lang-value').value = value;
-    document.getElementById('lang-label').textContent = label;
-    document.querySelectorAll('.lang-item').forEach(item => {
-      const check = item.querySelector('.lang-check');
-      const text  = item.querySelector('span');
-      const active = item.dataset.value === value;
-      check.classList.toggle('hidden', !active);
-      text.classList.toggle('text-white', active);
-      text.classList.toggle('text-gray-400', !active);
-    });
-    document.getElementById('dd-lang-panel').classList.add('hidden');
-    document.getElementById('lang-chevron').classList.remove('rotate-180');
-  }
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('#dd-lang')) {
-      document.getElementById('dd-lang-panel').classList.add('hidden');
-      document.getElementById('lang-chevron').classList.remove('rotate-180');
-    }
-  });
-</script>
 
 {% endblock %}
