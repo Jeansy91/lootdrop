@@ -176,16 +176,16 @@
 <!-- Modal -->
 <div id="game-modal"
      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
-     onclick="closeModal(event)">
-  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+     onclick="if(event.target===this)closeGameModal()">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm pointer-events-none"></div>
 
   <div class="relative bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl
               w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
 
     <div id="modal-image-wrap" class="relative flex-shrink-0">
       <img id="modal-image" src="" alt="" class="w-full aspect-[16/7] object-cover">
-      <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 to-transparent"></div>
-      <button data-close-modal
+      <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 to-transparent pointer-events-none"></div>
+      <button onclick="closeGameModal()"
               class="absolute top-3 right-3 bg-gray-900/70 hover:bg-gray-900 text-white
                      rounded-full w-8 h-8 flex items-center justify-center transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -483,18 +483,13 @@
     document.body.style.overflow = 'hidden';
   }
 
-  function closeModal(event) {
-    if (event && !event.target.closest('[data-close-modal]') &&
-        event.target !== document.getElementById('game-modal')) return;
+  function closeGameModal() {
     document.getElementById('game-modal').classList.add('hidden');
     document.body.style.overflow = '';
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      document.getElementById('game-modal').classList.add('hidden');
-      document.body.style.overflow = '';
-    }
+    if (e.key === 'Escape') closeGameModal();
   });
 
   // restore UI on load
