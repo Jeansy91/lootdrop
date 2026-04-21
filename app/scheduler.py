@@ -66,12 +66,16 @@ async def start_scheduler() -> None:
         IntervalTrigger(minutes=interval),
         id="sync_job",
         replace_existing=True,
+        misfire_grace_time=None,
+        coalesce=True,
     )
     scheduler.add_job(
         email_job,
         CronTrigger(hour=hour, minute=minute),
         id="email_job",
         replace_existing=True,
+        misfire_grace_time=None,
+        coalesce=True,
     )
 
     scheduler.start()
