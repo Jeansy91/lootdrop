@@ -6,7 +6,6 @@ name: Build Image
 on:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -62,22 +61,6 @@ jobs:
           username: ${{ gitea.actor }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      # Bei einem v*-Tag bekommt das Image zusätzlich die nackte Version, damit
-      # im Registry-Listing ohne SHA-Auflösung erkennbar ist, was läuft.
-      - name: Derive image tags
-        id: meta
-        run: |
-          REPO="${{ env.REGISTRY }}/${{ env.OWNER }}/lootdrop"
-          {
-            echo "tags<<TAGS_EOF"
-            echo "$REPO:${{ gitea.sha }}"
-            echo "$REPO:latest"
-            if [ "${GITHUB_REF#refs/tags/v}" != "$GITHUB_REF" ]; then
-              echo "$REPO:${GITHUB_REF#refs/tags/v}"
-            fi
-            echo "TAGS_EOF"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -85,6 +68,8 @@ jobs:
           file:      Dockerfile
           platforms: linux/amd64
           push:      true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/lootdrop:${{ gitea.sha }}
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/lootdrop:latest
           cache-from: type=gha
           cache-to:   type=gha,mode=max
