@@ -216,7 +216,7 @@ async def subscribers_list(request: Request, session: Session = Depends(get_sess
         request=request,
         name="admin/subscribers.html",
         context=_ctx(request, subscribers=subscribers, message=message,
-             platform_groups=list(PLATFORM_GROUPS.keys())),
+                     platform_groups=list(PLATFORM_GROUPS.keys())),
     )
 
 

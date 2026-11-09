@@ -53,7 +53,7 @@ async def subscribe(
             request=request,
             name="subscribe.html",
             context=_ctx(request, message=t(lang, "subscribe_invalid"),
-                 error=True, selected_platforms=platforms or _ALL_GROUPS),
+                         error=True, selected_platforms=platforms or _ALL_GROUPS),
         )
 
     if session.exec(select(Subscriber).where(Subscriber.email == email)).first():
@@ -61,7 +61,7 @@ async def subscribe(
             request=request,
             name="subscribe.html",
             context=_ctx(request, message=t(lang, "subscribe_exists"),
-                 error=True, selected_platforms=platforms or _ALL_GROUPS),
+                         error=True, selected_platforms=platforms or _ALL_GROUPS),
         )
 
     chosen_lang = language if language in ("de", "en") else "de"
@@ -79,7 +79,7 @@ async def subscribe(
         request=request,
         name="subscribe.html",
         context=_ctx(request, message=t(lang, "subscribe_success"),
-             error=False, selected_platforms=platforms or _ALL_GROUPS),
+                     error=False, selected_platforms=platforms or _ALL_GROUPS),
     )
 
 
