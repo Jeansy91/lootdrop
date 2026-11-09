@@ -36,7 +36,7 @@ The app runs on `http://localhost:8000`. The SQLite database is persisted in `./
 
 ### Local Development
 
-Requirements: Python 3.12+
+Requirements: Python 3.12+. The CI tests Python 3.12, 3.13, 3.14, and 3.15.
 
 ```bash
 pip install -r requirements.txt

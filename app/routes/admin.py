@@ -51,7 +51,9 @@ async def admin_root():
 @router.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
     return templates.TemplateResponse(
-        "admin/login.html", _ctx(request, error=None)
+        request=request,
+        name="admin/login.html",
+        context=_ctx(request, error=None),
     )
 
 
@@ -66,8 +68,9 @@ async def login(
         return RedirectResponse(url="/admin/dashboard", status_code=303)
     lang = get_lang(request)
     return templates.TemplateResponse(
-        "admin/login.html",
-        _ctx(request, error=t(lang, "admin_wrong_credentials")),
+        request=request,
+        name="admin/login.html",
+        context=_ctx(request, error=t(lang, "admin_wrong_credentials")),
     )
 
 
@@ -86,8 +89,9 @@ async def dashboard(request: Request, session: Session = Depends(get_session)):
     message = request.session.pop("message", None)
     hour, minute = get_email_time(session)
     return templates.TemplateResponse(
-        "admin/dashboard.html",
-        _ctx(
+        request=request,
+        name="admin/dashboard.html",
+        context=_ctx(
             request,
             giveaway_count=len(get_active_giveaways(session)),
             subscriber_count=len(session.exec(select(Subscriber)).all()),
@@ -161,8 +165,9 @@ async def giveaways_list(request: Request, session: Session = Depends(get_sessio
         session.exec(select(Giveaway).order_by(Giveaway.id.desc())).all()
     )
     return templates.TemplateResponse(
-        "admin/giveaways.html",
-        _ctx(request, giveaways=giveaways, message=message),
+        request=request,
+        name="admin/giveaways.html",
+        context=_ctx(request, giveaways=giveaways, message=message),
     )
 
 
@@ -208,8 +213,9 @@ async def subscribers_list(request: Request, session: Session = Depends(get_sess
         session.exec(select(Subscriber).order_by(Subscriber.created_at.desc())).all()
     )
     return templates.TemplateResponse(
-        "admin/subscribers.html",
-        _ctx(request, subscribers=subscribers, message=message,
+        request=request,
+        name="admin/subscribers.html",
+        context=_ctx(request, subscribers=subscribers, message=message,
              platform_groups=list(PLATFORM_GROUPS.keys())),
     )
 

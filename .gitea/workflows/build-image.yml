@@ -1,8 +1,6 @@
 name: Build Image
 
-# Veröffentlicht das Image in die Gitea-Registry, damit der lootdrop-Stack es
-# zieht statt auf dem Docker-Host zu bauen.
-
+# Test supported Python releases and publish the runtime image only from main.
 on:
   push:
     branches: [main]
@@ -17,27 +15,27 @@ env:
   OWNER: jens
 
 jobs:
-  # Das Projekt hat keine Testsuite. Dieser Job ist bewusst kein Ersatz
-  # dafür, sondern fängt nur das Offensichtliche ab: Syntaxfehler und
-  # kaputte Importe würden sonst erst beim Start des Containers auffallen,
-  # also nach dem Push von :latest.
   check:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13", "3.14", "3.15"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: "${{ matrix.python-version }}"
 
       - run: pip install --no-cache-dir -r requirements.txt
 
       - name: Syntaxprüfung
-        run: python -m compileall -q app
+        run: python -m compileall -q app tests
+
+      - name: Template-Routen testen
+        run: python -m unittest discover -s tests -v
 
       - name: App importieren
-        # database.py legt beim Import das Verzeichnis der SQLite-Datei an;
-        # der Default /data existiert im Runner nicht.
         env:
           DATABASE_PATH: ./ci-data/lootdrop.db
         run: python -c "from app.main import app; print(app.title)"
@@ -46,15 +44,12 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: docker/setup-buildx-action@v3
 
-      # Nicht secrets.GITEA_TOKEN: der pro Task eingespeiste Token
-      # authentifiziert gegen die API, wird von der Container-Registry aber
-      # abgelehnt (/v2/ liefert unauthorized). Nötig ist ein persönlicher
-      # Access Token mit write:package als Repo-Secret REGISTRY_TOKEN.
       - name: Login to Gitea Container Registry
+        if: gitea.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -67,7 +62,7 @@ jobs:
           context:   .
           file:      Dockerfile
           platforms: linux/amd64
-          push:      true
+          push:      ${{ gitea.ref == 'refs/heads/main' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.OWNER }}/lootdrop:${{ gitea.sha }}
             ${{ env.REGISTRY }}/${{ env.OWNER }}/lootdrop:latest

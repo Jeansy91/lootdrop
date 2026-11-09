@@ -32,8 +32,9 @@ def _ctx(request: Request, **kwargs):
 @router.get("/subscribe", response_class=HTMLResponse)
 async def subscribe_form(request: Request):
     return templates.TemplateResponse(
-        "subscribe.html",
-        _ctx(request, message=None, error=False, selected_platforms=_ALL_GROUPS),
+        request=request,
+        name="subscribe.html",
+        context=_ctx(request, message=None, error=False, selected_platforms=_ALL_GROUPS),
     )
 
 
@@ -49,15 +50,17 @@ async def subscribe(
 
     if not _EMAIL_RE.match(email):
         return templates.TemplateResponse(
-            "subscribe.html",
-            _ctx(request, message=t(lang, "subscribe_invalid"),
+            request=request,
+            name="subscribe.html",
+            context=_ctx(request, message=t(lang, "subscribe_invalid"),
                  error=True, selected_platforms=platforms or _ALL_GROUPS),
         )
 
     if session.exec(select(Subscriber).where(Subscriber.email == email)).first():
         return templates.TemplateResponse(
-            "subscribe.html",
-            _ctx(request, message=t(lang, "subscribe_exists"),
+            request=request,
+            name="subscribe.html",
+            context=_ctx(request, message=t(lang, "subscribe_exists"),
                  error=True, selected_platforms=platforms or _ALL_GROUPS),
         )
 
@@ -73,8 +76,9 @@ async def subscribe(
     session.commit()
 
     return templates.TemplateResponse(
-        "subscribe.html",
-        _ctx(request, message=t(lang, "subscribe_success"),
+        request=request,
+        name="subscribe.html",
+        context=_ctx(request, message=t(lang, "subscribe_success"),
              error=False, selected_platforms=platforms or _ALL_GROUPS),
     )
 
@@ -89,14 +93,16 @@ async def preferences_page(
 ):
     if done:
         return templates.TemplateResponse(
-            "unsubscribe.html",
-            _ctx(request, subscriber=None, invalid=False, saved=False, unsubscribed=True),
+            request=request,
+            name="unsubscribe.html",
+            context=_ctx(request, subscriber=None, invalid=False, saved=False, unsubscribed=True),
         )
 
     if not token:
         return templates.TemplateResponse(
-            "unsubscribe.html",
-            _ctx(request, subscriber=None, invalid=True, saved=False, unsubscribed=False),
+            request=request,
+            name="unsubscribe.html",
+            context=_ctx(request, subscriber=None, invalid=True, saved=False, unsubscribed=False),
         )
 
     subscriber = session.exec(
@@ -105,13 +111,15 @@ async def preferences_page(
 
     if not subscriber:
         return templates.TemplateResponse(
-            "unsubscribe.html",
-            _ctx(request, subscriber=None, invalid=True, saved=False, unsubscribed=False),
+            request=request,
+            name="unsubscribe.html",
+            context=_ctx(request, subscriber=None, invalid=True, saved=False, unsubscribed=False),
         )
 
     return templates.TemplateResponse(
-        "unsubscribe.html",
-        _ctx(request, subscriber=subscriber, invalid=False, saved=saved, unsubscribed=False),
+        request=request,
+        name="unsubscribe.html",
+        context=_ctx(request, subscriber=subscriber, invalid=False, saved=saved, unsubscribed=False),
     )
 
 

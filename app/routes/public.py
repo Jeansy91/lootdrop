@@ -30,7 +30,11 @@ async def index(
         "lang": current_lang,
         "t": lambda key: t(current_lang, key),
     }
-    response = templates.TemplateResponse("index.html", ctx)
+    response = templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context=ctx,
+    )
     if lang in ("de", "en"):
         response.set_cookie("lang", lang, max_age=60 * 60 * 24 * 365, httponly=True)
     return response
