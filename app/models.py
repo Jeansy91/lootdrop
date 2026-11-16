@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
@@ -25,7 +25,7 @@ class Giveaway(SQLModel, table=True):
     platforms: str = ""                        # z.B. "Steam, Epic Games Store"
     end_date: Optional[str] = None             # "N/A" oder Datum
     status: str = "Active"
-    first_seen_at: datetime = Field(default_factory=datetime.utcnow)
+    first_seen_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     email_sent: bool = Field(default=False)
 
 
@@ -36,7 +36,7 @@ class Subscriber(SQLModel, table=True):
     token: str = Field(
         default_factory=lambda: secrets.token_urlsafe(32)
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     is_active: bool = Field(default=True)
     # Kommaseparierte Plattform-Gruppen; leer = alle Gruppen
     subscriber_platforms: str = Field(default="")
