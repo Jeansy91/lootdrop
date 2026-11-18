@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 env:
   REGISTRY: ghcr.io
@@ -42,6 +41,10 @@ jobs:
   image:
     needs: check
     runs-on: ubuntu-latest
+    # Nur dieser Job braucht Schreibrechte für ghcr.io
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v7
 
