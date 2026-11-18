@@ -1,0 +1,71 @@
+name: Security
+
+# Sicherheitsprüfungen, die ohne GitHub Advanced Security laufen
+# (privates Repository auf einem persönlichen Konto).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Wöchentlich, damit neu veröffentlichte Schwachstellen auffallen
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    name: Abhängigkeiten (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - run: pip install --no-cache-dir pip-audit==2.10.1
+
+      - name: Bekannte Schwachstellen in requirements.txt suchen
+        run: pip-audit --requirement requirements.txt --strict --desc
+
+  code:
+    name: Code (Bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - run: pip install --no-cache-dir bandit==1.9.4
+
+      # Nur mittlere und hohe Schwere, die niedrigen sind hier
+      # Fehlalarme für Übersetzungstexte wie "Passwort".
+      - name: Python-Code auf unsichere Muster prüfen
+        run: bandit --recursive app --severity-level medium
+
+  secrets:
+    name: Secrets (Gitleaks)
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: "8.30.1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks installieren
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          file="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$file" "$base/$file"
+          curl -sSfL -o "$RUNNER_TEMP/checksums.txt" "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          (cd "$RUNNER_TEMP" && grep " $file\$" checksums.txt | sha256sum --check --strict)
+          tar -xzf "$RUNNER_TEMP/$file" -C "$RUNNER_TEMP" gitleaks
+
+      - name: Gesamte Git-Historie nach Secrets durchsuchen
+        run: |
+          "$RUNNER_TEMP/gitleaks" git . --redact --verbose
