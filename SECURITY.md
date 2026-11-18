@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the latest state of the `main` branch (and the `latest` image on ghcr.io) receives security fixes.
+Only the latest release (and the `latest` image on ghcr.io) receives security fixes. Every relevant merge to `main` creates a new release automatically.
 
 ## Reporting a Vulnerability
 
@@ -15,8 +15,8 @@ Please include what is affected, how to reproduce it, and the impact you expect.
 
 ## Automated Checks
 
-- **Renovate** keeps dependencies, GitHub Actions and the Docker base image up to date and opens priority PRs for known vulnerabilities.
-- **Security workflow** (`.github/workflows/security.yml`) runs on every push to `main`, on every pull request and weekly:
+- **Dependabot** (`.github/dependabot.yml`) keeps Python packages, GitHub Actions and the Docker base image up to date. Patch and minor updates are merged automatically once CI passes; major updates wait for a manual review.
+- **Security workflow** (`.github/workflows/security.yml`) runs on every push to `main`, on every pull request (as part of the build) and weekly:
   - `pip-audit` checks `requirements.txt` for known vulnerabilities.
   - `bandit` checks the Python code for insecure patterns.
   - `gitleaks` scans the whole Git history for committed secrets.

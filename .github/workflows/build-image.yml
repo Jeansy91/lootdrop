@@ -1,9 +1,12 @@
 name: Build Image
 
-# Test supported Python releases and publish the runtime image only from main.
+# Testet alle unterstützten Python-Versionen, baut das Image und prüft es.
+# Auf main: Image nach ghcr.io pushen und automatisch ein Release erzeugen.
+# Dependabot-PRs (Patch/Minor) werden nach grüner CI automatisch gemergt.
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -38,40 +41,157 @@ jobs:
           DATABASE_PATH: ./ci-data/lootdrop.db
         run: python -c "from app.main import app; print(app.title)"
 
+  security:
+    uses: ./.github/workflows/security.yml
+
   image:
-    needs: check
+    needs: [check, security]
     runs-on: ubuntu-latest
     # Nur dieser Job braucht Schreibrechte für ghcr.io
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    env:
+      PUBLISH: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: docker/setup-buildx-action@v4
 
       - name: Image-Namen bestimmen
         run: echo "IMAGE=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/lootdrop" >> "$GITHUB_ENV"
 
+      - name: Nächste Version bestimmen
+        id: version
+        if: env.PUBLISH == 'true'
+        run: |
+          last=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' 2>/dev/null || true)
+          if [ -z "$last" ]; then
+            echo "Noch kein Release vorhanden, starte mit v1.0.0"
+            echo "version=v1.0.0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          subjects=$(git log --no-merges --format=%s "$last..HEAD")
+          # Nur CI-, Doku-, Test- und Wartungsänderungen ergeben kein Release,
+          # Abhängigkeitsupdates (chore(deps)) dagegen schon.
+          relevant=$(printf '%s\n' "$subjects" | grep -v '^$' \
+            | grep -Ev '^(ci|docs|test|style|chore)(\([^)]*\))?!?:' || true)
+          deps=$(printf '%s\n' "$subjects" | grep -E '^chore\(deps\)' || true)
+          if [ -z "$relevant$deps" ]; then
+            echo "Keine release-relevanten Änderungen seit $last"
+            echo "version=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          IFS=. read -r major minor patch <<< "${last#v}"
+          if git log --no-merges --format=%B "$last..HEAD" | grep -Eq '^BREAKING CHANGE' \
+             || printf '%s\n' "$subjects" | grep -Eq '^[a-z]+(\([^)]*\))?!:'; then
+            major=$((major + 1)); minor=0; patch=0
+          elif printf '%s\n' "$subjects" | grep -Eq '^feat(\([^)]*\))?:'; then
+            minor=$((minor + 1)); patch=0
+          else
+            patch=$((patch + 1))
+          fi
+          echo "Nächste Version: v$major.$minor.$patch (vorher $last)"
+          echo "version=v$major.$minor.$patch" >> "$GITHUB_OUTPUT"
+
+      - name: Image bauen
+        uses: docker/build-push-action@v7
+        with:
+          context:   .
+          file:      Dockerfile
+          platforms: linux/amd64
+          load:      true
+          tags:      lootdrop:ci
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      - name: Image testen
+        run: |
+          docker run --rm -e DATABASE_PATH=/tmp/lootdrop.db lootdrop:ci \
+            python -c "from app.main import app; print(app.title)"
+
+      - name: Tags bestimmen
+        if: env.PUBLISH == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          {
+            echo "TAGS<<EOF"
+            echo "${IMAGE}:${GITHUB_SHA}"
+            echo "${IMAGE}:latest"
+            if [ -n "$VERSION" ]; then echo "${IMAGE}:${VERSION#v}"; fi
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
       - name: Login to GitHub Container Registry
-        if: github.ref == 'refs/heads/main'
+        if: env.PUBLISH == 'true'
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Push
+        if: env.PUBLISH == 'true'
         uses: docker/build-push-action@v7
         with:
           context:   .
           file:      Dockerfile
           platforms: linux/amd64
-          push:      ${{ github.ref == 'refs/heads/main' }}
-          tags: |
-            ${{ env.IMAGE }}:${{ github.sha }}
-            ${{ env.IMAGE }}:latest
+          push:      true
+          tags:      ${{ env.TAGS }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
           cache-from: type=gha
-          cache-to:   type=gha,mode=max
+
+  release:
+    needs: image
+    if: needs.image.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - name: GitHub-Release erzeugen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.image.outputs.version }}
+        run: |
+          gh release create "$VERSION" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$VERSION" \
+            --generate-notes
+
+  automerge:
+    needs: image
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - name: Dependabot-Metadaten lesen
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+
+      - name: Patch- und Minor-Updates mergen
+        if: steps.meta.outputs.update-type != 'version-update:semver-major'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr merge "$PR_URL" --squash --delete-branch
+          # Ein Merge mit GITHUB_TOKEN löst keinen push-Workflow aus,
+          # darum den Build für main (Image + Release) explizit starten.
+          gh workflow run build-image.yml --repo "$GITHUB_REPOSITORY" --ref main
