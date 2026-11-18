@@ -1,15 +1,15 @@
 # Lootdrop
 
-Lootdrop aggregates free game giveaways from the GamerPower API and sends a daily email digest to subscribers. Subscribers can filter by platform and choose their preferred language (German or English).
+Lootdrop collects free game giveaways from the [GamerPower API](https://www.gamerpower.com/api-read) and sends a daily email digest to subscribers. Subscribers choose their platforms and their language (German or English).
 
 ## Features
 
-- Automatic giveaway sync from the GamerPower API on a configurable interval
-- Daily email digest with new giveaways (configurable send time)
+- Automatic giveaway sync from the GamerPower API (interval adjustable in the admin panel, default every 5 minutes)
+- Daily email digest with new giveaways (send time adjustable in the admin panel)
 - Platform filtering per subscriber
-- Two languages: German (de) and English (en)
-- Email preferences page: change language, platforms, or unsubscribe
-- Admin panel for managing giveaways, subscribers, and settings
+- Two languages: German (`de`) and English (`en`)
+- Email preferences page: change language or platforms, or unsubscribe
+- Admin panel for giveaways, subscribers and settings
 
 ## Stack
 
@@ -22,54 +22,93 @@ Lootdrop aggregates free game giveaways from the GamerPower API and sends a dail
 
 ### Docker (recommended)
 
-1. Copy the environment file and fill in your values:
+A ready-made image is published to the GitHub Container Registry on every release.
+
+1. Create an environment file and fill in your values (at least `ADMIN_PASSWORD`, `SECRET_KEY`, `BASE_URL` and the SMTP settings):
    ```bash
-   cp .env.example .env
+   curl -o .env https://raw.githubusercontent.com/Jeansy91/lootdrop/main/.env.example
    ```
 
-2. Start the app:
+2. Start the container:
    ```bash
-   docker compose up -d
+   docker run -d --name lootdrop \
+     --env-file .env \
+     -p 8000:8000 \
+     -v ./data:/data \
+     --restart unless-stopped \
+     ghcr.io/jeansy91/lootdrop:latest
    ```
 
-The app runs on `http://localhost:8000`. The SQLite database is persisted in `./data/`.
+The app runs on `http://localhost:8000`, the admin panel on `http://localhost:8000/admin`. The SQLite database is stored in `./data/`.
+
+Instead of `latest` you can pin a version, for example `ghcr.io/jeansy91/lootdrop:1.0.0`. All versions are listed under [Releases](https://github.com/Jeansy91/lootdrop/releases).
+
+With Docker Compose:
+
+```yaml
+services:
+  lootdrop:
+    image: ghcr.io/jeansy91/lootdrop:latest
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+```
+
+To build the image yourself, run `docker build -t lootdrop .` in the repository.
 
 ### Local Development
 
-Requirements: Python 3.12+. The CI tests Python 3.12, 3.13, 3.14, and 3.15.
+Requirements: Python 3.12 or newer. CI tests Python 3.12, 3.13, 3.14 and 3.15.
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# edit .env
+# edit .env, set DATABASE_PATH=./data/lootdrop.db
 uvicorn app.main:app --reload
 ```
 
-## Environment Variables
+Run the tests:
 
-| Variable | Description | Example |
+```bash
+python -m unittest discover -s tests -v
+```
+
+## Configuration
+
+All settings are read from environment variables or from a `.env` file. See [`.env.example`](.env.example) for a template.
+
+| Variable | Description | Default |
 |---|---|---|
 | `ADMIN_USERNAME` | Admin panel username | `admin` |
-| `ADMIN_PASSWORD` | Admin panel password | `changeme` |
-| `SECRET_KEY` | Session secret key (random string) | `supersecretkey` |
-| `BASE_URL` | Public base URL (used in emails) | `https://lootdrop.example.com` |
-| `DATABASE_PATH` | Path to SQLite file | `/data/lootdrop.db` |
+| `ADMIN_PASSWORD` | Admin panel password. **Always set a strong password.** | `changeme123` (local development only) |
+| `SECRET_KEY` | Secret for signing sessions. **Always set a long random value**, e.g. `python -c "import secrets; print(secrets.token_urlsafe(48))"` | insecure placeholder (local development only) |
+| `BASE_URL` | Public URL of your instance, used for links in emails | `http://localhost:8000` |
+| `DATABASE_PATH` | Path to the SQLite file | `/data/lootdrop.db` |
 | `SMTP_HOST` | SMTP server hostname | `smtp.gmail.com` |
 | `SMTP_PORT` | SMTP port | `587` |
-| `SMTP_USER` | SMTP username | `you@gmail.com` |
-| `SMTP_PASSWORD` | SMTP password / app password | `yourpassword` |
+| `SMTP_USER` | SMTP username | – |
+| `SMTP_PASSWORD` | SMTP password or app password | – |
 | `SMTP_FROM_NAME` | Sender display name | `Lootdrop` |
-| `SMTP_FROM_EMAIL` | Sender email address | `noreply@example.com` |
+| `SMTP_FROM_EMAIL` | Sender email address | – |
 | `SMTP_USE_TLS` | Use STARTTLS (`true`/`false`) | `true` |
-| `EMAIL_HOUR` | Default daily send hour (UTC) | `8` |
-| `EMAIL_MINUTE` | Default daily send minute (UTC) | `0` |
+| `EMAIL_HOUR` | Initial daily send hour (UTC) | `18` |
+| `EMAIL_MINUTE` | Initial daily send minute (UTC) | `0` |
+
+`EMAIL_HOUR` and `EMAIL_MINUTE` only set the starting value. Once you change the send time or the sync interval in the admin panel, the value stored in the database is used.
+
+Never expose an instance to the internet with the default admin password or secret key. See [SECURITY.md](SECURITY.md) for more.
 
 ## Admin Panel
 
-Available at `/admin`. Log in with the credentials set in `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
+Available at `/admin`. Log in with `ADMIN_USERNAME` and `ADMIN_PASSWORD`.
 
-- **Dashboard**: live stats, trigger manual sync or email send, adjust sync interval and email send time
-- **Giveaways**: browse and manage fetched giveaways
+- **Dashboard**: live stats, trigger a sync or an email send manually, change the sync interval and the email send time
+- **Giveaways**: browse and delete fetched giveaways, reset their email status
 - **Subscribers**: add or remove subscribers manually
 
 ## CI, Security and Releases
@@ -116,27 +155,32 @@ See [SECURITY.md](SECURITY.md) for how to report a vulnerability.
 
 ```
 app/
-  main.py          # App entry point, scheduler setup
-  models.py        # SQLModel database models
-  i18n.py          # Translation strings (de/en)
+  main.py               # App entry point, middleware, routers
+  config.py             # Settings from environment variables
+  database.py           # Database engine, tables and migrations
+  models.py             # SQLModel database models
+  scheduler.py          # Sync and email jobs (APScheduler)
+  i18n.py               # Translation strings (de/en)
   routes/
-    admin.py       # Admin panel routes
-    giveaways.py   # Public giveaway routes
-    subscribe.py   # Subscribe / preferences / unsubscribe
-  templates/
-    base.html      # Public base layout
-    index.html     # Home page with giveaway list
-    subscribe.html # Subscribe form
-    unsubscribe.html # Email preferences + unsubscribe
-    admin/
-      base.html    # Admin base layout
-      dashboard.html
-      giveaways.html
-      subscribers.html
-  static/
-    favicon.svg
-data/              # SQLite database (Docker volume)
-docker-compose.yml
+    public.py           # Home page with giveaway list
+    subscribe.py        # Subscribe, preferences, unsubscribe
+    admin.py            # Admin panel
+  services/
+    gamerpower.py       # GamerPower API client
+    giveaway_service.py # Sync, platform mapping, sent status
+    email_service.py    # Daily digest via SMTP
+    settings_service.py # Settings stored in the database
+  templates/            # Jinja2 templates (public, admin/, email/)
+  static/               # Static files
+tests/                  # Unit tests
 Dockerfile
 .env.example
 ```
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
+## Acknowledgements
+
+Giveaway data is provided by [GamerPower](https://www.gamerpower.com). Lootdrop is not affiliated with GamerPower.

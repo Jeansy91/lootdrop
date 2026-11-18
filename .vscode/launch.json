@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Free Games: Run (Terminal)",
+      "name": "Lootdrop: Run (Terminal)",
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
@@ -14,7 +14,7 @@
       "noDebug": true
     },
     {
-      "name": "Free Games: Debug (kein Reload)",
+      "name": "Lootdrop: Debug (kein Reload)",
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
