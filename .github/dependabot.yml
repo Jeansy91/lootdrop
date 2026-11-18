@@ -1,0 +1,41 @@
+# Dependabot hält Python-Pakete, das Docker-Basisimage und die GitHub Actions
+# aktuell. Patch- und Minor-Updates werden nach grüner CI automatisch gemergt
+# (siehe .github/workflows/build-image.yml, Job "automerge").
+# Renovate (renovate.json) läuft nur auf der Gitea-Instanz, nicht auf GitHub.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      python-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      actions-minor-patch:
+        update-types: [minor, patch]
