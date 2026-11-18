@@ -10,3 +10,5 @@ venv/
 dist/
 .DS_Store
 .mcp.json
+.vscode/
+.claude/

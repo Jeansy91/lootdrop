@@ -181,6 +181,10 @@ Dockerfile
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
+## License
+
+Lootdrop is released under the [MIT License](LICENSE).
+
 ## Acknowledgements
 
 Giveaway data is provided by [GamerPower](https://www.gamerpower.com). Lootdrop is not affiliated with GamerPower.
