@@ -1,5 +1,5 @@
-import re
 from typing import List
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -14,7 +14,18 @@ from ..services.giveaway_service import PLATFORM_GROUPS, SYSTEM_GROUPS
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_MAX_EMAIL_LEN = 254
+
+
+def _is_valid_email(value: str) -> bool:
+    """Linear-time email sanity check (no regex, so no ReDoS)."""
+    if len(value) > _MAX_EMAIL_LEN or any(c.isspace() for c in value):
+        return False
+    local, sep, domain = value.partition("@")
+    if not sep or not local or "@" in domain:
+        return False
+    host, dot, tld = domain.rpartition(".")
+    return bool(dot and host and tld)
 _ALL_GROUPS = sorted(SYSTEM_GROUPS.keys(), key=str.casefold)
 
 
@@ -48,7 +59,7 @@ async def subscribe(
 ):
     lang = get_lang(request)
 
-    if not _EMAIL_RE.match(email):
+    if not _is_valid_email(email):
         return templates.TemplateResponse(
             request=request,
             name="subscribe.html",
@@ -135,13 +146,19 @@ async def save_preferences(
         select(Subscriber).where(Subscriber.token == token)
     ).first()
 
-    if subscriber:
-        subscriber.language = language if language in ("de", "en") else "de"
-        subscriber.subscriber_platforms = ",".join(g for g in platforms if g in _ALL_GROUPS)
-        session.add(subscriber)
-        session.commit()
+    if not subscriber:
+        return RedirectResponse(url="/unsubscribe", status_code=303)
 
-    return RedirectResponse(url=f"/unsubscribe?token={token}&saved=1", status_code=303)
+    subscriber.language = language if language in ("de", "en") else "de"
+    subscriber.subscriber_platforms = ",".join(g for g in platforms if g in _ALL_GROUPS)
+    session.add(subscriber)
+    session.commit()
+
+    # Use the token stored in the DB (not the request value) and URL-encode it.
+    return RedirectResponse(
+        url=f"/unsubscribe?token={quote(subscriber.token, safe='')}&saved=1",
+        status_code=303,
+    )
 
 
 @router.post("/unsubscribe")
