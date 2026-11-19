@@ -11,6 +11,23 @@ Lootdrop collects free game giveaways from the [GamerPower API](https://www.game
 - Email preferences page: change language or platforms, or unsubscribe
 - Admin panel for giveaways, subscribers and settings
 
+## Screenshots
+
+| Giveaway overview | Giveaway details |
+|---|---|
+| ![Giveaway overview with platform and store filters](docs/screenshots/home.png) | ![Details of a giveaway with description and instructions](docs/screenshots/giveaway-details.png) |
+| **Subscribe** | **Admin dashboard** |
+| ![Subscribe form with language and platform selection](docs/screenshots/subscribe.png) | ![Admin dashboard with stats, sync and email controls](docs/screenshots/admin-dashboard.png) |
+
+<details>
+<summary>More: subscriber management</summary>
+
+![Admin page for managing subscribers](docs/screenshots/admin-subscribers.png)
+
+</details>
+
+The screenshots show demo data. The interface is available in English and German (DE/EN toggle).
+
 ## Stack
 
 - **Backend**: FastAPI, SQLModel, APScheduler

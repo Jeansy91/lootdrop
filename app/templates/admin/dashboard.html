@@ -3,7 +3,7 @@
 
 <div class="mb-8">
   <h1 class="text-2xl font-bold text-white">{{ t('admin_dashboard_title') }}</h1>
-  <p class="text-gray-500 text-sm mt-1">Übersicht und Steuerung von Lootdrop</p>
+  <p class="text-gray-500 text-sm mt-1">{{ t('admin_dashboard_subtitle') }}</p>
 </div>
 
 {% if message %}
@@ -34,7 +34,7 @@
   <!-- Sync Interval -->
   <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 flex flex-col">
     <div class="flex items-start justify-between mb-3">
-      <p class="text-gray-500 text-xs uppercase tracking-wider">Sync-Intervall</p>
+      <p class="text-gray-500 text-xs uppercase tracking-wider">{{ t('admin_sync_interval') }}</p>
       <button onclick="openEditModal('sync')"
               class="text-gray-600 hover:text-emerald-400 transition-colors p-0.5 rounded">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -48,7 +48,7 @@
   <!-- Email Time -->
   <div class="bg-gray-900 rounded-2xl p-5 border border-white/5 flex flex-col">
     <div class="flex items-start justify-between mb-3">
-      <p class="text-gray-500 text-xs uppercase tracking-wider">E-Mail</p>
+      <p class="text-gray-500 text-xs uppercase tracking-wider">{{ t('admin_email_label') }}</p>
       <button onclick="openEditModal('email')"
               class="text-gray-600 hover:text-emerald-400 transition-colors p-0.5 rounded">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -65,23 +65,23 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
   <div class="bg-gray-900 rounded-2xl p-5 border border-white/5">
     <p class="text-sm font-semibold text-white mb-1">{{ t('refresh_giveaways') }}</p>
-    <p class="text-xs text-gray-500 mb-4">Giveaways sofort von GamerPower abrufen</p>
+    <p class="text-xs text-gray-500 mb-4">{{ t('admin_refresh_hint') }}</p>
     <form method="post" action="/admin/refresh">
       <button type="submit"
               class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-        Jetzt synchronisieren
+        {{ t('admin_sync_now') }}
       </button>
     </form>
   </div>
 
   <div class="bg-gray-900 rounded-2xl p-5 border border-white/5">
     <p class="text-sm font-semibold text-white mb-1">{{ t('admin_trigger_email') }}</p>
-    <p class="text-xs text-gray-500 mb-4">E-Mail mit ungesendeten Giveaways versenden</p>
+    <p class="text-xs text-gray-500 mb-4">{{ t('admin_send_hint') }}</p>
     <form id="form-send-email" method="post" action="/admin/send-email"></form>
     <button type="button"
-            onclick="showModal('E-Mail versenden', 'E-Mails mit allen ungesendeten Giveaways jetzt versenden?', 'Jetzt senden', 'bg-emerald-600 hover:bg-emerald-500 text-white', () => document.getElementById('form-send-email').submit())"
+            onclick="showModal('{{ t('admin_send_confirm_title') }}', '{{ t('admin_send_confirm_text') }}', '{{ t('admin_send_confirm_btn') }}', 'bg-emerald-600 hover:bg-emerald-500 text-white', () => document.getElementById('form-send-email').submit())"
             class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-      E-Mail senden
+      {{ t('admin_send_btn') }}
     </button>
   </div>
 </div>
@@ -91,8 +91,8 @@
      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
      onclick="if(event.target===this)closeEditModal('sync')">
   <div class="bg-gray-900 border border-white/10 rounded-2xl p-6 w-full max-w-xs shadow-2xl">
-    <h3 class="text-base font-semibold text-white mb-1">Sync-Intervall</h3>
-    <p class="text-xs text-gray-500 mb-5">Wie oft soll die GamerPower API abgefragt werden?</p>
+    <h3 class="text-base font-semibold text-white mb-1">{{ t('admin_sync_interval') }}</h3>
+    <p class="text-xs text-gray-500 mb-5">{{ t('admin_sync_question') }}</p>
     <form method="post" action="/admin/settings">
       <input type="hidden" name="email_hour"   value="{{ email_hour }}">
       <input type="hidden" name="email_minute" value="{{ email_minute }}">
@@ -111,11 +111,11 @@
       <div class="flex gap-3 justify-end">
         <button type="button" onclick="closeEditModal('sync')"
                 class="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-white/5">
-          Abbrechen
+          {{ t('common_cancel') }}
         </button>
         <button type="submit"
                 class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-          Speichern
+          {{ t('admin_settings_save') }}
         </button>
       </div>
     </form>
@@ -127,8 +127,8 @@
      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
      onclick="if(event.target===this)closeEditModal('email')">
   <div class="bg-gray-900 border border-white/10 rounded-2xl p-6 w-full max-w-xs shadow-2xl">
-    <h3 class="text-base font-semibold text-white mb-1">E-Mail-Versandzeit</h3>
-    <p class="text-xs text-gray-500 mb-5">Uhrzeit für den täglichen E-Mail-Versand (UTC)</p>
+    <h3 class="text-base font-semibold text-white mb-1">{{ t('admin_email_time_title') }}</h3>
+    <p class="text-xs text-gray-500 mb-5">{{ t('admin_email_time_hint') }}</p>
     <form method="post" action="/admin/settings">
       <input type="hidden" name="sync_interval" value="{{ sync_interval }}">
       <div class="flex items-center gap-2 mb-6">
@@ -156,11 +156,11 @@
       <div class="flex gap-3 justify-end">
         <button type="button" onclick="closeEditModal('email')"
                 class="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-white/5">
-          Abbrechen
+          {{ t('common_cancel') }}
         </button>
         <button type="submit"
                 class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-          Speichern
+          {{ t('admin_settings_save') }}
         </button>
       </div>
     </form>
