@@ -19,10 +19,10 @@
     <thead>
       <tr class="border-b border-white/5">
         <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium w-16">ID</th>
-        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">Titel</th>
-        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">Plattformen</th>
-        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">Status</th>
-        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">E-Mail</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">{{ t('admin_gw_title') }}</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">{{ t('admin_platforms') }}</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">{{ t('admin_sub_status') }}</th>
+        <th class="px-5 py-3.5 text-left text-xs text-gray-500 uppercase tracking-wider font-medium">{{ t('admin_email_label') }}</th>
         <th class="px-5 py-3.5"></th>
       </tr>
     </thead>
@@ -53,31 +53,31 @@
         <td class="px-5 py-3">
           {% if game.email_sent %}
           <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-500">Gesendet</span>
+            <span class="text-xs text-gray-500">{{ t('admin_gw_sent') }}</span>
             <form method="post" action="/admin/giveaways/{{ game.id }}/reset-email">
               <button type="submit"
                       class="text-xs text-gray-600 hover:text-amber-400 transition-colors underline underline-offset-2">
-                zurücksetzen
+                {{ t('admin_gw_reset') }}
               </button>
             </form>
           </div>
           {% else %}
-          <span class="text-xs text-amber-500/70">Ausstehend</span>
+          <span class="text-xs text-amber-500/70">{{ t('admin_gw_pending') }}</span>
           {% endif %}
         </td>
         <td class="px-5 py-3 text-right">
           <form id="del-game-{{ game.id }}" method="post" action="/admin/giveaways/{{ game.id }}/delete"></form>
           <button type="button"
-                  onclick="showModal('Giveaway löschen', '{{ game.title|replace("'", "\\'") }} wirklich löschen?', 'Löschen', 'bg-red-600 hover:bg-red-500 text-white', () => document.getElementById('del-game-{{ game.id }}').submit())"
+                  onclick="showModal('{{ t('admin_gw_delete_title') }}', '{{ t('admin_gw_delete_text')|replace('{name}', game.title|replace("'", "\\'")) }}', '{{ t('admin_sub_delete') }}', 'bg-red-600 hover:bg-red-500 text-white', () => document.getElementById('del-game-{{ game.id }}').submit())"
                   class="text-xs text-red-500/60 hover:text-red-400 transition-colors">
-            Löschen
+            {{ t('admin_sub_delete') }}
           </button>
         </td>
       </tr>
       {% else %}
       <tr>
         <td colspan="6" class="px-5 py-16 text-center text-gray-600 text-sm">
-          Keine Giveaways vorhanden.
+          {{ t('admin_gw_empty') }}
         </td>
       </tr>
       {% endfor %}

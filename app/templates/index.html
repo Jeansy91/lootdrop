@@ -8,7 +8,7 @@
     <button onclick="toggleDropdown('system')" id="dd-system-btn"
             class="flex items-center justify-between gap-8 bg-gray-800 border border-white/10 rounded-lg
                    px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors min-w-[180px]">
-      <span id="dd-system-label">Spieleplattform: {{ t('filter_all') }}</span>
+      <span id="dd-system-label">{{ t('filter_system') }}: {{ t('filter_all') }}</span>
       <svg id="dd-system-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
       </svg>
@@ -36,7 +36,7 @@
     <button onclick="toggleDropdown('store')" id="dd-store-btn"
             class="flex items-center justify-between gap-8 bg-gray-800 border border-white/10 rounded-lg
                    px-3 py-2 text-sm text-white hover:border-emerald-500/50 transition-colors min-w-[160px]">
-      <span id="dd-store-label">Store: {{ t('filter_all') }}</span>
+      <span id="dd-store-label">{{ t('filter_store') }}: {{ t('filter_all') }}</span>
       <svg id="dd-store-chevron" class="w-3.5 h-3.5 text-gray-500 transition-transform duration-150 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
       </svg>
@@ -240,6 +240,9 @@
   const TEXT_MARK    = "{{ t('card_mark_claimed') }}";
   const TEXT_UNMARK  = "{{ t('card_unmark_claimed') }}";
   const TEXT_ALL     = "{{ t('filter_all') }}";
+  const TEXT_SELECTED = "{{ t('filter_selected') }}";
+  const TEXT_SYSTEM  = "{{ t('filter_system') }}";
+  const TEXT_STORE   = "{{ t('filter_store') }}";
 
   const CLAIMED_KEY  = 'free_games_claimed';
   const FILTER_KEY   = 'free_games_filters';
@@ -351,7 +354,7 @@
       itemCbs.forEach(c => { if (c.value === cb.value) c.checked = activeSet.has(c.value); });
     }
 
-    const prefix = name === 'system' ? 'Spieleplattform' : 'Store';
+    const prefix = name === 'system' ? TEXT_SYSTEM : TEXT_STORE;
     updateLabel(name, activeSet, prefix);
     saveFilters();
     applyFilters();
@@ -383,7 +386,7 @@
     const label = document.getElementById(`dd-${name}-label`);
     if (activeSet.size === 0)      label.textContent = `${prefix}: ${TEXT_ALL}`;
     else if (activeSet.size === 1) label.textContent = `${prefix}: ${[...activeSet][0]}`;
-    else                           label.textContent = `${prefix}: ${activeSet.size} ${TEXT_ALL === 'Alle' ? 'ausgewählt' : 'selected'}`;
+    else                           label.textContent = `${prefix}: ${activeSet.size} ${TEXT_SELECTED}`;
   }
 
   function applyFilters() {
@@ -501,7 +504,7 @@
       document.querySelectorAll(`.${name}-cb:not([value="__all__"])`).forEach(cb => {
         cb.checked = activeSet.has(cb.value);
       });
-      updateLabel(name, activeSet, name === 'system' ? 'Spieleplattform' : 'Store');
+      updateLabel(name, activeSet, name === 'system' ? TEXT_SYSTEM : TEXT_STORE);
     });
   }
 
