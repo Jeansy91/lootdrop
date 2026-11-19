@@ -156,8 +156,6 @@ The image is tagged with `latest`, the commit SHA and the version without the `v
 
 Dependabot (`.github/dependabot.yml`) checks Python packages, the Docker base image and the GitHub Actions every Monday. Patch and minor updates are merged automatically once CI passes, which then triggers a new release. Major updates wait for a manual review.
 
-`renovate.json` is only used by the Gitea mirror and has no effect on GitHub.
-
 ### Security checks
 
 `.github/workflows/security.yml` runs as part of every build and additionally every Monday:
