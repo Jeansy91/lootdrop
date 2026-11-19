@@ -26,7 +26,7 @@ Lootdrop collects free game giveaways from the [GamerPower API](https://www.game
 
 </details>
 
-The screenshots show the German interface with demo data. Switch to English with the DE/EN toggle.
+The screenshots show demo data. The interface is available in English and German (DE/EN toggle).
 
 ## Stack
 
