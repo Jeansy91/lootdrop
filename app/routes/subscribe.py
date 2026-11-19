@@ -1,5 +1,6 @@
 import re
 from typing import List
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -14,7 +15,7 @@ from ..services.giveaway_service import PLATFORM_GROUPS, SYSTEM_GROUPS
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s.]+(?:\.[^@\s.]+)+$")
 _ALL_GROUPS = sorted(SYSTEM_GROUPS.keys(), key=str.casefold)
 
 
@@ -48,7 +49,7 @@ async def subscribe(
 ):
     lang = get_lang(request)
 
-    if not _EMAIL_RE.match(email):
+    if len(email) > 254 or not _EMAIL_RE.match(email):
         return templates.TemplateResponse(
             request=request,
             name="subscribe.html",
@@ -135,13 +136,19 @@ async def save_preferences(
         select(Subscriber).where(Subscriber.token == token)
     ).first()
 
-    if subscriber:
-        subscriber.language = language if language in ("de", "en") else "de"
-        subscriber.subscriber_platforms = ",".join(g for g in platforms if g in _ALL_GROUPS)
-        session.add(subscriber)
-        session.commit()
+    if not subscriber:
+        return RedirectResponse(url="/unsubscribe", status_code=303)
 
-    return RedirectResponse(url=f"/unsubscribe?token={token}&saved=1", status_code=303)
+    subscriber.language = language if language in ("de", "en") else "de"
+    subscriber.subscriber_platforms = ",".join(g for g in platforms if g in _ALL_GROUPS)
+    session.add(subscriber)
+    session.commit()
+
+    # Token stammt aus der DB, nicht aus der Nutzereingabe
+    return RedirectResponse(
+        url=f"/unsubscribe?token={quote(subscriber.token, safe='')}&saved=1",
+        status_code=303,
+    )
 
 
 @router.post("/unsubscribe")
